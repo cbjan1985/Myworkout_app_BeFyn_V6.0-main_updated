@@ -1,0 +1,24 @@
+/* BeFyn design tokens. Brand colours come from the V6.0 design system; semantic tokens are validated by tools/check.mjs. */
+:root {
+  --brand-deep: #164E52; --brand-teal: #267C78; --brand-mint: #75C9B7; --brand-ivory: #F5F3EE; --brand-stone: #D8D5CE;
+  color-scheme: light;
+  --bg: #F5F3EE; --surface: #FFFFFF; --surface-2: #EEEBE4; --border: #D8D5CE; --border-strong: #8A867D;
+  --text: #17292B; --text-muted: #566868; --text-on-primary: #FFFFFF;
+  --primary: #164E52; --primary-press: #0F3B3E; --accent: #1F6E6A; --accent-soft: #DCEFEA; --accent-text: #14595A; --mint: #75C9B7;
+  --focus: #0B63CE; --success: #1B6F46; --success-soft: #DDF1E5; --warning: #7A4F00; --warning-soft: #FBEBC8; --error: #B3261E; --error-soft: #FADDD9;
+  --disabled-bg: #E4E1DA; --disabled-text: #6F7A79; --scrim: rgba(10, 30, 32, .5); --shadow: 0 1px 2px rgba(10, 30, 32, .08), 0 4px 14px rgba(10, 30, 32, .06);
+  --chart-1: #1F6E6A; --chart-2: #B5651D; --chart-3: #5B6FB8; --chart-grid: #D8D5CE;
+
+  --fs-sm: 13px; --fs-base: 15px; --fs-md: 17px; --fs-lg: 20px; --fs-xl: 24px; --fs-2xl: 30px;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 20px; --s6: 24px; --s7: 32px;
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --tap: 48px; --nav-h: 64px; --maxw: 640px;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0E1A1B; --surface: #152526; --surface-2: #1C3031; --border: #2B4446; --border-strong: #5F8083;
+  --text: #E7EFEE; --text-muted: #9FB6B4; --text-on-primary: #0A1F20;
+  --primary: #75C9B7; --primary-press: #5BB5A2; --accent: #75C9B7; --accent-soft: #1D3A38; --accent-text: #8FD8C8; --mint: #75C9B7;
+  --focus: #7DB4FF; --success: #6FD3A0; --success-soft: #17342A; --warning: #F0C060; --warning-soft: #3A2E12; --error: #FF9D94; --error-soft: #3E1F1D;
+  --disabled-bg: #223637; --disabled-text: #7F9593; --scrim: rgba(0, 0, 0, .62); --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 14px rgba(0, 0, 0, .3);
+  --chart-1: #75C9B7; --chart-2: #E8A46B; --chart-3: #9DB0F0; --chart-grid: #2B4446;
+}

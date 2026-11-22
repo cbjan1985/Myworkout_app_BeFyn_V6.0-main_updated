@@ -1,0 +1,1330 @@
+[
+ {
+  "f": "Programme domain (template / instance / log)",
+  "s": [
+   [
+    "Template with weeks, sessions, sections, prescriptions",
+    "done",
+    "",
+    "spec s6"
+   ],
+   [
+    "Published versions immutable",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Instance with cursor, start date, pause metadata",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Progression follows cursor; completion advances exactly once",
+    "done",
+    "",
+    "tested + E2E"
+   ],
+   [
+    "Missed session never advances cursor or intensity",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Rescheduling keeps session identity",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Template edits do not change a running instance (fork to new version)",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Append-only session log with audited correction (service)",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Standalone workouts logged without a programme",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Adherence tracking",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Programme-complete state shown and next programme offered",
+    "missing",
+    "P0",
+    "Completed instance is never loaded (only active/paused are), so the 'Programme complete' card is unreachable"
+   ],
+   [
+    "Progression rules: load progression and deload rules in the template",
+    "partial",
+    "P1",
+    "Only phases and +reps; load changes are suggestions, no rule editor, no deload"
+   ],
+   [
+    "Scheduled time of day (domain model: date/time)",
+    "missing",
+    "P2",
+    "Date only"
+   ]
+  ]
+ },
+ {
+  "f": "Smart Schedule Engine",
+  "s": [
+   [
+    "Move a session",
+    "done",
+    "",
+    "tested + E2E"
+   ],
+   [
+    "Swap sessions",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Move an entire week",
+    "done",
+    "",
+    "tested + E2E"
+   ],
+   [
+    "Shift all future sessions by N days",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Pause and resume",
+    "done",
+    "",
+    "tested + E2E"
+   ],
+   [
+    "Preview before applying",
+    "done",
+    "",
+    "tested + E2E"
+   ],
+   [
+    "Detect duplicate sessions",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Detect rest-day conflicts",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Detect invalid sequence",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Explain completed-session effects",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Undo",
+    "done",
+    "",
+    "tested + E2E"
+   ],
+   [
+    "Change history",
+    "done",
+    "",
+    "tested + E2E"
+   ],
+   [
+    "Missed: shift forward (default)",
+    "done",
+    "",
+    "tested + E2E"
+   ],
+   [
+    "Missed: skip",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Missed: repeat week",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Missed: jump ahead with rules",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Re-ramp after a long break",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Reconcile cursor, schedule and history with preview + confirmation",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Open an individual missed session and choose its resolution",
+    "partial",
+    "P1",
+    "Resolution is offered for all missed sessions together, not from one session"
+   ],
+   [
+    "Conflict resolution guidance beyond blocking (suggest alternative days)",
+    "partial",
+    "P2",
+    "Conflicts block; only 'swap' is offered as a fix"
+   ],
+   [
+    "Multi-step re-synchronisation wizard",
+    "partial",
+    "P2",
+    "Single preview sheet"
+   ]
+  ]
+ },
+ {
+  "f": "Programme Builder",
+  "s": [
+   [
+    "Create programme: objective, duration, weekly frequency",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Choose training days and rest days when creating",
+    "partial",
+    "P1",
+    "Days are auto-spread from 'sessions per week'; changeable per day afterwards, no explicit day picker"
+   ],
+   [
+    "Add exercises from the Exercise Master",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Sets, reps, duration, rest and load per exercise",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Edit warm-up, stretching, breathing and flow sections",
+    "missing",
+    "P0",
+    "Builder edits the main workout only"
+   ],
+   [
+    "Create superset, tri-set and drop-set blocks",
+    "missing",
+    "P0",
+    "Only imported/seed programmes contain them; Excel import can"
+   ],
+   [
+    "Progression settings",
+    "partial",
+    "P1",
+    "Only 'add reps every N weeks'"
+   ],
+   [
+    "Per-week differences in a built programme",
+    "partial",
+    "P1",
+    "Pattern repeats identically; only imported/forked programmes edit week by week"
+   ],
+   [
+    "Preview weekly structure before saving",
+    "partial",
+    "P1",
+    "List of days; no week preview"
+   ],
+   [
+    "Multi-step builder with visible progress",
+    "partial",
+    "P1",
+    "One screen with auto-saved draft"
+   ],
+   [
+    "Save as reusable template and publish",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Start an instance from a template",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Edit an existing programme (new version)",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Duplicate a programme as a new, separate programme",
+    "missing",
+    "P1",
+    "Only 'new version of the same programme'"
+   ],
+   [
+    "Excel export and import of programmes",
+    "done",
+    "",
+    "tested (row mapping); file read/write needs device"
+   ],
+   [
+    "Download a blank Excel weekly-schedule template",
+    "missing",
+    "P1",
+    "V5 had it"
+   ]
+  ]
+ },
+ {
+  "f": "Exercise Master",
+  "s": [
+   [
+    "Central catalogue (277 exercises)",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Search",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Filter by category, muscle, equipment",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Filter by difficulty",
+    "missing",
+    "P2",
+    ""
+   ],
+   [
+    "Primary muscles, equipment, difficulty",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Enter secondary muscles",
+    "missing",
+    "P1",
+    "Shown when present, not editable"
+   ],
+   [
+    "Enter starting position",
+    "missing",
+    "P1",
+    "Shown when present, not editable"
+   ],
+   [
+    "Enter variations",
+    "missing",
+    "P1",
+    "Shown when present, not editable"
+   ],
+   [
+    "Progressions field (display and edit)",
+    "missing",
+    "P1",
+    "Stored, never shown or editable"
+   ],
+   [
+    "Instructions, breathing, common mistakes, safety notes",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Instruction text for warm-up, stretching and yoga exercises",
+    "missing",
+    "P0",
+    "288 programme items carry descriptions and 354 carry targets/breathing notes from V5; none are displayed. 83 exercises have no instruction text at all"
+   ],
+   [
+    "Video links with preview",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Attach a local image, GIF or video to an exercise",
+    "missing",
+    "P0",
+    "V5 could; storage helper exists, no UI"
+   ],
+   [
+    "Media folder sync",
+    "unverified",
+    "",
+    "Needs the Android plugin on a device"
+   ],
+   [
+    "Media placeholders and fallbacks",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "No duplicate exercise definitions",
+    "done",
+    "",
+    "tested + E2E"
+   ],
+   [
+    "Archive and restore",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Usage shown before archiving",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Exercise history and personal record on the detail screen",
+    "done",
+    "",
+    "E2E"
+   ]
+  ]
+ },
+ {
+  "f": "Workout execution",
+  "s": [
+   [
+    "Guided exercise sequence with overview and warm-up",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Set, rep and weight entry",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Timed exercises and duration entry",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Rest timer with next-up preview and +15 s",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Instructions and media during the exercise",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Previous performance and explainable suggestion",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Complete and skip (set, exercise)",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Back (undo last set)",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Per-side Left/Right steps",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Guided breathing with voice",
+    "done",
+    "",
+    "logic runs; voice needs device"
+   ],
+   [
+    "Session feedback, notes, summary and records",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Interruption, backgrounding, accidental exit and resume",
+    "done",
+    "",
+    "E2E (reload resume)"
+   ],
+   [
+    "Finish the workout early",
+    "missing",
+    "P0",
+    "No way to end with exercises remaining except skipping each one"
+   ],
+   [
+    "Substitute an exercise during a session",
+    "missing",
+    "P1",
+    "Spec: 'appropriate adjustment options'"
+   ],
+   [
+    "Add or remove a set during a session",
+    "missing",
+    "P1",
+    ""
+   ],
+   [
+    "Note per exercise",
+    "missing",
+    "P2",
+    "Notes exist for the session only"
+   ],
+   [
+    "Workout timing settings take effect (break, transition preview, breath break, rep seconds, auto-rest)",
+    "missing",
+    "P0",
+    "Only 'rest between sets' is used; 3 controls on Preferences do nothing"
+   ],
+   [
+    "Voice guidance on device",
+    "unverified",
+    "",
+    "Needs the Android plugin"
+   ],
+   [
+    "Screen kept awake",
+    "unverified",
+    "",
+    "Native flag; needs device"
+   ]
+  ]
+ },
+ {
+  "f": "Session history",
+  "s": [
+   [
+    "Browse past sessions",
+    "missing",
+    "P0",
+    "Only visible one day at a time on Calendar; V5 had a History tab"
+   ],
+   [
+    "Session detail with every set",
+    "missing",
+    "P0",
+    ""
+   ],
+   [
+    "Correct a log through the app (audited)",
+    "missing",
+    "P1",
+    "Service exists, no screen"
+   ],
+   [
+    "Search or filter history",
+    "missing",
+    "P2",
+    ""
+   ],
+   [
+    "CSV export of history",
+    "done",
+    "",
+    "needs device for file save"
+   ]
+  ]
+ },
+ {
+  "f": "Calendar",
+  "s": [
+   [
+    "Month overview with status",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Day agenda and session detail",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Week view",
+    "missing",
+    "P1",
+    "Spec: 'agenda/week view'; V5 had Weeks"
+   ],
+   [
+    "Rest-day detail",
+    "partial",
+    "P2",
+    "One line of text"
+   ],
+   [
+    "Move, swap, shift, move week, missed, pause, change log",
+    "done",
+    "",
+    "E2E"
+   ]
+  ]
+ },
+ {
+  "f": "Today",
+  "s": [
+   [
+    "Today's session or rest-day state, start/continue",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Next session",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Recovery context",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Quick activity and past-session log",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Progress signal",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Empty state",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Uses the profile (name, goal)",
+    "missing",
+    "P2",
+    "Collected in onboarding, never used or editable"
+   ]
+  ]
+ },
+ {
+  "f": "Progress",
+  "s": [
+   [
+    "Workout frequency",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Programme adherence",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Strength progression and exercise performance",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Personal records",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Muscle-group activity",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Body weight trend",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Protein history",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Trends for other measurements",
+    "missing",
+    "P1",
+    "Latest values only"
+   ],
+   [
+    "Activity trends (steps, calories, exercise sessions from Health Connect)",
+    "missing",
+    "P0",
+    "Data is synced but never shown on Progress"
+   ],
+   [
+    "Recovery and training-load trend over time",
+    "missing",
+    "P1",
+    "Single current value on Recovery"
+   ],
+   [
+    "Choose a time range for a chart",
+    "missing",
+    "P1",
+    "Fixed ranges"
+   ]
+  ]
+ },
+ {
+  "f": "Health Connect",
+  "s": [
+   [
+    "Explicit, per-type permission with explanation",
+    "unverified",
+    "",
+    "JS tested with a simulated plugin; native untested"
+   ],
+   [
+    "Sync status, last sync, source names",
+    "done",
+    "",
+    "E2E (simulated)"
+   ],
+   [
+    "De-duplication and no double counting",
+    "done",
+    "",
+    "tested + E2E"
+   ],
+   [
+    "Graceful behaviour when unavailable or denied",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Steps, active calories, heart rate, sleep, weight",
+    "done",
+    "",
+    "E2E (simulated)"
+   ],
+   [
+    "Show exercise sessions",
+    "missing",
+    "P1",
+    "Synced, never displayed"
+   ],
+   [
+    "Show body fat and height",
+    "missing",
+    "P2",
+    "Synced, never displayed"
+   ],
+   [
+    "Oxygen saturation (SpO2)",
+    "missing",
+    "P1",
+    "You asked for it in V3"
+   ],
+   [
+    "Automatic background sync",
+    "missing",
+    "P2",
+    "Manual sync only"
+   ],
+   [
+    "Kotlin plugin compiled and run on a device",
+    "unverified",
+    "",
+    "Never built here"
+   ]
+  ]
+ },
+ {
+  "f": "Recovery and insights",
+  "s": [
+   [
+    "Explainable readiness with basis and missing data",
+    "done",
+    "",
+    "tested + E2E"
+   ],
+   [
+    "No medical claims; never changes a programme",
+    "done",
+    "",
+    "by design"
+   ],
+   [
+    "Uses frequency, load, rest days, duration, consistency",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Uses permitted health data (sleep)",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Uses resting heart rate",
+    "missing",
+    "P2",
+    ""
+   ],
+   [
+    "Re-ramp suggestion",
+    "done",
+    "",
+    "tested"
+   ]
+  ]
+ },
+ {
+  "f": "Nutrition and protein",
+  "s": [
+   [
+    "Daily target",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Entries with meal categories",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Total and remaining",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "History and weekly view",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Estimate versus measured labelling",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Edit an entry",
+    "missing",
+    "P2",
+    "Delete only"
+   ]
+  ]
+ },
+ {
+  "f": "Reminders",
+  "s": [
+   [
+    "Workout, recovery, nutrition/hydration, custom reminders",
+    "unverified",
+    "",
+    "Scheduling logic tested; delivery needs a device"
+   ],
+   [
+    "Avoid excessive notifications (warning)",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Permission asked in context",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Upcoming-session reminder reflects the real schedule",
+    "missing",
+    "P0",
+    "Fires at a fixed time every week regardless of the schedule"
+   ],
+   [
+    "Missed-session reminder only when a session was missed",
+    "missing",
+    "P0",
+    "Fires every week regardless"
+   ],
+   [
+    "Milestone reminder tied to an actual milestone",
+    "missing",
+    "P1",
+    "Time-based only"
+   ],
+   [
+    "Reminders re-planned after schedule changes",
+    "missing",
+    "P1",
+    ""
+   ]
+  ]
+ },
+ {
+  "f": "Migration and data",
+  "s": [
+   [
+    "Detect, back up, validate, map, verify, mark success last",
+    "done",
+    "",
+    "tested + E2E (fixture)"
+   ],
+   [
+    "Idempotent; safe failure paths",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Programmes, history, exercises, preferences, saved workouts",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Duplicates handled explicitly",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Encrypted health vault import with the person's own password",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Real V5.0 device data migrated",
+    "unverified",
+    "",
+    "Only a V5-shaped fixture was available"
+   ],
+   [
+    "V5 'saved plans' converted to runnable workouts",
+    "partial",
+    "P1",
+    "Kept view-only; structure not inspected"
+   ],
+   [
+    "V5 'other apps' links shown",
+    "missing",
+    "P2",
+    "Migrated to preferences, no screen"
+   ]
+  ]
+ },
+ {
+  "f": "Backup, restore, import and export",
+  "s": [
+   [
+    "Backup file with schema version",
+    "done",
+    "",
+    "tested + E2E"
+   ],
+   [
+    "Validated restore (merge/replace) with safety snapshot",
+    "done",
+    "",
+    "tested + E2E"
+   ],
+   [
+    "CSV and Excel export",
+    "done",
+    "",
+    "tested (mapping)"
+   ],
+   [
+    "Automatic backup",
+    "missing",
+    "P1",
+    "V5 had it"
+   ],
+   [
+    "Backup reminder",
+    "missing",
+    "P2",
+    ""
+   ]
+  ]
+ },
+ {
+  "f": "Preferences, profile and settings",
+  "s": [
+   [
+    "Voice, theme, breathing timing, media folder",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Privacy and about",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Edit profile (name, goal)",
+    "missing",
+    "P2",
+    ""
+   ],
+   [
+    "Units",
+    "missing",
+    "P2",
+    "Kilograms only"
+   ],
+   [
+    "Tagline 'Your life. Your fitness. Your pace.' shown",
+    "missing",
+    "P2",
+    "Appears nowhere"
+   ]
+  ]
+ },
+ {
+  "f": "Design system and shell",
+  "s": [
+   [
+    "Five-tab navigation, back behaviour, safe areas",
+    "done",
+    "",
+    "E2E (safe areas need device)"
+   ],
+   [
+    "Semantic tokens, complete light and dark themes, contrast checked",
+    "done",
+    "",
+    "tools/check.mjs"
+   ],
+   [
+    "One icon family, consistent components, sheets, toasts",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Empty and error states",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Loading states without layout jumps",
+    "partial",
+    "P2",
+    "Skeleton component exists but is not used; screens render directly from local data"
+   ],
+   [
+    "Charts with text alternatives",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Keyboard-safe forms",
+    "unverified",
+    "",
+    "Needs a device"
+   ],
+   [
+    "Large-text scaling",
+    "unverified",
+    "",
+    "Needs a device"
+   ]
+  ]
+ },
+ {
+  "f": "Accessibility checklist",
+  "s": [
+   [
+    "No horizontal overflow at 320 and 390 px",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Controls have accessible names, visible focus, 48 px targets",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Status is not shown by colour alone",
+    "partial",
+    "P1",
+    "Calendar dots rely on colour in the grid (names are in each day's label)"
+   ],
+   [
+    "Form errors tied to their fields",
+    "partial",
+    "P1",
+    "Sheet forms show a separate alert line, not linked with aria-describedby"
+   ],
+   [
+    "Screen-reader pass on a device",
+    "unverified",
+    "",
+    "Not done"
+   ]
+  ]
+ },
+ {
+  "f": "Onboarding",
+  "s": [
+   [
+    "Welcome, optional profile, goal",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Programme selection",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Optional permissions never block use",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Equipment and preferences",
+    "missing",
+    "P2",
+    ""
+   ],
+   [
+    "Create-your-own path from onboarding",
+    "partial",
+    "P2",
+    "Offered later in Train"
+   ],
+   [
+    "Health Connect offered contextually",
+    "partial",
+    "P2",
+    "Only inside More > Health"
+   ]
+  ]
+ },
+ {
+  "f": "V5.0 capabilities to retain or improve",
+  "s": [
+   [
+    "Workout library with categories, delete/restore",
+    "done",
+    "",
+    "E2E"
+   ],
+   [
+    "Yoga, cardio, dance, step-board sessions run as workouts",
+    "partial",
+    "P1",
+    "Run from Train > Workouts; no dedicated sections or content for them"
+   ],
+   [
+    "Edit a saved workout",
+    "missing",
+    "P0",
+    "Create and delete only"
+   ],
+   [
+    "Edit a single day's workout (V5 per-day override)",
+    "missing",
+    "P1",
+    ""
+   ],
+   [
+    "Bulk plan: repeat programme for N weeks, copy a week, build from saved plans",
+    "missing",
+    "P1",
+    ""
+   ],
+   [
+    "'Plan your next weeks' after the programme ends",
+    "missing",
+    "P1",
+    ""
+   ],
+   [
+    "Programme guide text from the PDF",
+    "missing",
+    "P1",
+    "Imported into the template, never shown"
+   ],
+   [
+    "Health trends and records per metric",
+    "partial",
+    "P1",
+    ""
+   ],
+   [
+    "Voice test, rest timer, breathing voice, per-side splitting, YouTube preview",
+    "done",
+    "",
+    "E2E / logic"
+   ]
+  ]
+ },
+ {
+  "f": "Security and Android continuity",
+  "s": [
+   [
+    "No default passwords; imported files validated",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "Permissions requested only when the feature is used",
+    "done",
+    "",
+    "by design"
+   ],
+   [
+    "App id and signing continuity with V5.0",
+    "done",
+    "",
+    "same id and key"
+   ],
+   [
+    "Avoid broad storage permission (use scoped access)",
+    "partial",
+    "P1",
+    "MANAGE_EXTERNAL_STORAGE kept for the media folder"
+   ],
+   [
+    "Keep signing material out of the source",
+    "partial",
+    "P1",
+    "V5's debug keystore is committed; moving signing to repository secrets is in progress"
+   ],
+   [
+    "Dependency vulnerability review",
+    "missing",
+    "P1",
+    "Not possible offline"
+   ],
+   [
+    "Capacitor and plugin version compatibility verified",
+    "unverified",
+    "",
+    "Needs a real install and build"
+   ],
+   [
+    "APK built and install-over-V5.0 tested",
+    "missing",
+    "P0",
+    "Not possible in this environment"
+   ]
+  ]
+ },
+ {
+  "f": "Technology direction (preferred, not mandatory)",
+  "s": [
+   [
+    "Modular layers, repositories, transactions, versioned schema",
+    "done",
+    "",
+    "tested"
+   ],
+   [
+    "TypeScript",
+    "missing",
+    "P2",
+    "Decision: nothing could be installed"
+   ],
+   [
+    "SQLite",
+    "missing",
+    "P2",
+    "Decision: plugin could not be validated offline; repository layer allows a later swap"
+   ],
+   [
+    "Component framework and bundler",
+    "missing",
+    "P2",
+    "Decision: no installs; plain ES modules"
+   ]
+  ]
+ }
+]

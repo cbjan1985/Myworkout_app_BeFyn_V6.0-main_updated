@@ -1,0 +1,9 @@
+{
+  "appId": "com.myworkout.v3",
+  "appName": "BeFyn",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "backgroundColor": "#F5F3EE"
+}
