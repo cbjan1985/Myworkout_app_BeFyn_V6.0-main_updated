@@ -74,7 +74,7 @@ jobs:
         continue-on-error: true
         env:
           BUILD_LOG: build-full.log
-        run: tools/android-build.sh
+        run: bash tools/android-build.sh
 
       - name: Why the first build failed
         if: steps.full.outcome == 'failure'
@@ -88,11 +88,11 @@ jobs:
         if: steps.full.outcome == 'failure'
         env:
           BUILD_LOG: build-fallback.log
-        run: tools/android-build.sh --no-health
+        run: bash tools/android-build.sh --no-health
 
       - name: Verify the APK exists and is correct
         run: |
-          if [ "${{ steps.full.outcome }}" = "success" ]; then tools/verify-apk.sh; else tools/verify-apk.sh --suffix _no-health; fi
+          if [ "${{ steps.full.outcome }}" = "success" ]; then bash tools/verify-apk.sh; else bash tools/verify-apk.sh --suffix _no-health; fi
 
       - name: Upload the APK
         uses: actions/upload-artifact@v4
