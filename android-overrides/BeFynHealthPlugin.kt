@@ -12,6 +12,7 @@ import androidx.health.connect.client.records.BodyFatRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.HeightRecord
+import androidx.health.connect.client.records.OxygenSaturationRecord
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.StepsRecord
@@ -36,7 +37,9 @@ import kotlinx.coroutines.launch
 
 /**
  * Read-only bridge to Android Health Connect. BeFyn never writes health data.
- * JS contract (see www/src/platform/health.js): getStatus, requestHealthPermissions, readRecords, openSettings.
+ * JS contract (see www/src/platform/health.js): getStatus, requestHealthAccess, readRecords, openSettings.
+ * NOTE: the method is deliberately NOT called requestPermissions: Capacitor's Plugin base class already has one, and a same-named
+ * Kotlin function fails to compile ("hides member of supertype 'Plugin' and needs 'override' modifier").
  */
 @CapacitorPlugin(name = "BeFynHealth")
 class BeFynHealthPlugin : Plugin() {
@@ -51,6 +54,7 @@ class BeFynHealthPlugin : Plugin() {
     "weight" to WeightRecord::class,
     "bodyFat" to BodyFatRecord::class,
     "height" to HeightRecord::class,
+    "oxygenSaturation" to OxygenSaturationRecord::class,
   )
 
   private fun permissionFor(type: String): String = HealthPermission.getReadPermission(types.getValue(type))
@@ -90,7 +94,7 @@ class BeFynHealthPlugin : Plugin() {
   }
 
   @PluginMethod
-  fun requestHealthPermissions(call: PluginCall) {
+  fun requestHealthAccess(call: PluginCall) {
     if (availability() != "available") { call.reject("Health Connect is not available on this device."); return }
     val wanted = try { call.getArray("types").toList<String>() } catch (e: Exception) { emptyList() }
     val perms = wanted.filter { types.containsKey(it) }.map { permissionFor(it) }.toSet()
@@ -169,6 +173,7 @@ class BeFynHealthPlugin : Plugin() {
           "weight" -> readAll(client, WeightRecord::class, start, end, out) { r -> rec(r.metadata, r.time, null, r.weight.inKilograms) }
           "bodyFat" -> readAll(client, BodyFatRecord::class, start, end, out) { r -> rec(r.metadata, r.time, null, r.percentage.value) }
           "height" -> readAll(client, HeightRecord::class, start, end, out) { r -> rec(r.metadata, r.time, null, r.height.inMeters * 100.0) }
+          "oxygenSaturation" -> readAll(client, OxygenSaturationRecord::class, start, end, out) { r -> rec(r.metadata, r.time, null, r.percentage.value) }
         }
         call.resolve(JSObject().put("records", out))
       } catch (ex: SecurityException) {

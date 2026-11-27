@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Launch background: black, exactly as in V5.0, so the native launch screen flows into the 3.5 s flash screen without a colour jump. -->
+    <color name="befyn_splash">#000000</color>
+</resources>
