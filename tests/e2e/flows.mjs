@@ -159,7 +159,7 @@ await flow('data: backup downloads, restore merge works, nutrition, measurements
   const fs = await import('node:fs'); const file = '/tmp/befyn-backup.json'; await d.saveAs(file); const b = JSON.parse(fs.readFileSync(file, 'utf8'));
   assert.equal(b.format, 'befyn-backup'); assert.ok(b.data.nutrition.length === 1 && b.data.measurements.length === 1 && b.data.reminders.length === 1);
   // erase then restore from the same file
-  await page.getByRole('button', { name: 'Erase all BeFyn data' }).click(); await sh(page).getByPlaceholder('Type ERASE').fill('ERASE'); await sheetBtn(page, 'Erase', true).click(); await page.waitForTimeout(500);
+  await page.getByRole('button', { name: 'Erase all FiT85 data' }).click(); await sh(page).getByPlaceholder('Type ERASE').fill('ERASE'); await sheetBtn(page, 'Erase', true).click(); await page.waitForTimeout(500);
   assert.equal(await page.evaluate(() => __befyn.state.nutrition.length), 0);
   await goto(page, '/more/data');
   const chooser = page.waitForEvent('filechooser'); await page.getByRole('button', { name: 'Restore from a file' }).click(); (await chooser).setFiles(file); await page.waitForSelector('text=Restore backup');
@@ -176,7 +176,7 @@ await flow('health: Health Connect unavailable in browser is explained; mocked n
   await page.evaluate(() => {
     const granted = new Set(); const T = ['steps', 'activeCalories', 'heartRate', 'sleep', 'exercise', 'weight', 'bodyFat', 'height'];
     const records = { steps: [{ id: 'a1', start: new Date(Date.now() - 3600e3).toISOString(), end: new Date().toISOString(), value: 4200, source: 'Google Fit' }, { id: 'b1', start: new Date(Date.now() - 3600e3).toISOString(), end: new Date().toISOString(), value: 3900, source: 'Fastrack' }], weight: [{ id: 'w1', start: new Date().toISOString(), value: 72.1, source: 'Google Fit' }], sleep: [{ id: 's1', start: new Date(Date.now() - 8 * 3600e3).toISOString(), end: new Date().toISOString(), value: 7.4, source: 'Fastrack' }] };
-    window.Capacitor = { isNativePlatform: () => true, Plugins: { BeFynHealth: { getStatus: async () => ({ availability: 'available', granted: [...granted] }), requestHealthAccess: async ({ types }) => { types.forEach((t) => granted.add(t)); return { granted: [...granted] }; }, readRecords: async ({ type }) => ({ records: records[type] || [] }), openSettings: async () => {} } } };
+    window.Capacitor = { isNativePlatform: () => true, Plugins: { FiT85Health: { getStatus: async () => ({ availability: 'available', granted: [...granted] }), requestHealthAccess: async ({ types }) => { types.forEach((t) => granted.add(t)); return { granted: [...granted] }; }, readRecords: async ({ type }) => ({ records: records[type] || [] }), openSettings: async () => {} } } };
   });
   await goto(page, '/more'); await goto(page, '/more/health');
   await page.getByRole('button', { name: 'Choose data to connect' }).click(); await sheetBtn(page, 'Continue').click(); await page.waitForSelector('text=Connected', { timeout: 8000 });
@@ -220,15 +220,15 @@ await flow('player mechanics: start from session sheet, rest timer, per-side ste
 });
 
 
-await flow('V6.5: flash screen is the V5.0 logo for 3.5 s with the name BeFyn; brand row on Today', async ({ page }) => {
+await flow('V6.5: flash screen is the V5.0 logo for 3.5 s with the name FiT85; brand row on Today', async ({ page }) => {
   const t0 = Date.now(); await page.goto(BASE + '?debug=1'); await page.waitForSelector('#splash', { timeout: 5000 });
-  assert.equal(await page.locator('#splash .sn').innerText(), 'BeFyn'); assert.match(await page.locator('#splash .sl').getAttribute('src'), /assets\/app_icon_splash\.png$/);
+  assert.equal(await page.locator('#splash .sn').innerText(), 'FiT85'); assert.match(await page.locator('#splash .sl').getAttribute('src'), /assets\/app_icon_splash\.png$/);
   assert.match(await page.locator('#splash .sv').innerText(), /Version 6\.5/); assert.match(await page.locator('#splash .sb').innerText(), /Designed by CB/i);
   await page.waitForTimeout(2800); assert.equal(await page.locator('#splash').count(), 1, 'still showing at ~3 s');
   await page.waitForFunction(() => !document.getElementById('splash'), null, { timeout: 4000 }); const shown = Date.now() - t0;
   assert.ok(shown >= 3400 && shown <= 4600, `flash screen visible ${shown} ms`);
   await page.evaluate(() => __befyn.setPref('profile', { onboarded: true })); await goto(page, '/today');
-  assert.equal(await page.locator('.brand img').getAttribute('src'), 'assets/app_icon.png'); assert.match(await page.locator('.brand').innerText(), /BeFyn\s*V6\.5/);
+  assert.equal(await page.locator('.brand img').getAttribute('src'), 'assets/app_icon.png'); assert.match(await page.locator('.brand').innerText(), /FiT85\s*V6\.5/);
   assert.equal((await page.evaluate(async () => { const r = await fetch('assets/app_icon_splash.png'); return r.status; })), 200);
 });
 
@@ -333,7 +333,7 @@ await flow('upgrade with the REAL V5.0 page: V5 writes its own data, V6.5 on the
     save(); return { sets, keys: Object.keys(localStorage), rows: S.logs.length, set: S.set };
   });
   assert.ok(v5.keys.includes('myWorkouts.v3')); assert.equal(v5.rows, v5.sets);
-  // 2. open BeFyn on the same origin: this is the upgrade
+  // 2. open FiT85 on the same origin: this is the upgrade
   await page.goto(BASE + '?debug=1&splash=0'); await page.waitForFunction(() => window.__befyn && !document.getElementById('splash'), null, { timeout: 15000 });
   const r = await page.evaluate(() => { const m = __befyn.state.migration; return { status: m.status, report: m.report, warnings: m.warnings || [], logs: __befyn.state.logs.length, sets: __befyn.state.logs.reduce((n, l) => n + l.performances.reduce((a, p) => a + p.sets.length, 0), 0), done: __befyn.state.programme.sessions.filter((s) => s.status === 'completed').length, legacyStill: !!localStorage.getItem('myWorkouts.v3'), backup: !!(__befyn.state.migration && true) }; });
   assert.equal(r.status, 'done'); assert.equal(r.report.programme, 'seed', 'the real V5 plan expansion is recognised as the stock programme');

@@ -1,7 +1,7 @@
-# BeFyn 6.5
+# FiT85 6.5
 
 A personal fitness and wellness companion for Android (Capacitor + plain ES modules). Everything is stored on the phone.
-BeFyn 6.5 is the upgrade of "My Workouts" V5.0; it installs over V5.0 (same app id and signing key) and migrates its data.
+FiT85 6.5 is the upgrade of "My Workouts" V5.0; it installs over V5.0 (same app id and signing key) and migrates its data.
 
 ## What is in this package
 | Path | What |
@@ -34,10 +34,10 @@ npm run seed           # regenerate www/assets/seed from legacy/plan_v4.js
 
 ## Build the APK
 See `docs/BUILD_INSTRUCTIONS.md`. In short: push this folder to your private GitHub repository; the workflow
-`.github/workflows/build-apk.yml` runs the checks and builds the APK (artifact `BeFyn_V6.5-APK`, file `BeFyn_V6.5.apk`).
+`.github/workflows/build-apk.yml` runs the checks and builds the APK (artifact `FiT85_V6.5-APK`, file `FiT85_V6.5.apk`).
 
 ## Documents
-- `BeFyn_V6.5_Release_Notes.md` what changed, what is verified, recommendation
+- `FiT85_V6.5_Release_Notes.md` what changed, what is verified, recommendation
 - `docs/BUILD_REPORT.md` why no APK was produced and the permanent fix
 - `docs/UPGRADE_COMPATIBILITY_REPORT.md` V5.0 to V6.5 identity, signing and migration
 - `docs/security/` security assessment and vulnerability register

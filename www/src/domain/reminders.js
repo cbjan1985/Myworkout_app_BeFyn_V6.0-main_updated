@@ -11,7 +11,7 @@ export const KINDS = {
   recovery: { label: 'Recovery check-in', session: false, body: 'A good moment to stretch, hydrate and rest.' },
   protein: { label: 'Protein check', session: false, body: 'How is your protein target looking today?' },
   hydration: { label: 'Hydration', session: false, body: 'Time for some water.' },
-  backup: { label: 'Back up your data', session: false, body: 'Save a BeFyn backup so your history is safe.' },
+  backup: { label: 'Back up your data', session: false, body: 'Save a FiT85 backup so your history is safe.' },
   custom: { label: 'Custom reminder', session: false, body: '' },
 };
 export const MAX_ONE_OFF = 60;
@@ -32,8 +32,8 @@ export function buildNotifications({ reminders, sessions = [], instanceStatus = 
   const push = (r, date, title, body, tag) => { const when = at(date, r.time); if (when > now) oneOff.push({ id: hash(`${r.id}|${date}|${tag}`), title, body, at: when.toISOString() }); };
   for (const r of reminders.filter((x) => x.enabled)) {
     const kind = KINDS[r.kind] ? r.kind : 'custom'; const title = r.title || KINDS[kind].label;
-    if (kind === 'workout') upcoming.forEach((s) => allowed(r, s.date) && push(r, s.date, r.title || 'Time to train', detailed ? `${s.name} (week ${s.week})` : 'Your BeFyn session is ready.', s.id));
-    else if (kind === 'upcoming') upcoming.forEach((s) => { const d = addDays(s.date, -1); if (d >= today && allowed(r, d)) push(r, d, r.title || 'Tomorrow in BeFyn', detailed ? `${s.name} (week ${s.week})` : 'Your next session is tomorrow.', s.id); });
+    if (kind === 'workout') upcoming.forEach((s) => allowed(r, s.date) && push(r, s.date, r.title || 'Time to train', detailed ? `${s.name} (week ${s.week})` : 'Your FiT85 session is ready.', s.id));
+    else if (kind === 'upcoming') upcoming.forEach((s) => { const d = addDays(s.date, -1); if (d >= today && allowed(r, d)) push(r, d, r.title || 'Tomorrow in FiT85', detailed ? `${s.name} (week ${s.week})` : 'Your next session is tomorrow.', s.id); });
     else if (kind === 'missed') {
       // Only when a session really is overdue (or becomes overdue tomorrow); completing it reschedules and removes this.
       const next = overdue.length ? addDays(today, 1) : upcoming.length ? addDays(upcoming[0].date, 1) : null;

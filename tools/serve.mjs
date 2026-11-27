@@ -15,4 +15,4 @@ http.createServer((req, res) => {
   if (isV5 && p.endsWith('/xlsx.full.min.js') && !fs.existsSync(f)) { res.writeHead(200, { 'Content-Type': 'text/javascript' }); res.end('/* test stub: the spreadsheet library is not needed for the upgrade test */'); return; }
   if (!(f.startsWith(base) || f.startsWith(root)) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); res.end('Not found'); return; }
   res.writeHead(200, { 'Content-Type': MIME[path.extname(f)] || 'application/octet-stream', 'Cache-Control': 'no-store' }); fs.createReadStream(f).pipe(res);
-}).listen(port, () => console.log(`BeFyn dev server on http://localhost:${port}/`));
+}).listen(port, () => console.log(`FiT85 dev server on http://localhost:${port}/`));

@@ -54,4 +54,4 @@ async function boot() {
   if (app.state.prefs.reminders?.rescheduleOnStart !== false) app.applyReminders().catch(() => {});
 }
 
-boot().catch((e) => { console.error(e); fatal('BeFyn could not start', String((e && e.message) || e), [h('button', { class: 'btn', onclick: () => location.reload() }, 'Try again')]); });
+boot().catch((e) => { console.error(e); fatal('FiT85 could not start', String((e && e.message) || e), [h('button', { class: 'btn', onclick: () => location.reload() }, 'Try again')]); });

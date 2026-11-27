@@ -1,4 +1,4 @@
-name: Build BeFyn APK
+name: Build FiT85 APK
 
 on:
   push:
@@ -34,7 +34,7 @@ jobs:
 
       - name: Read the app version
         id: ver
-        run: echo "name=$(node -p "require('./package.json').befyn.versionName")" >> "$GITHUB_OUTPUT"
+        run: echo "name=$(node -p "require('./package.json').fit85.versionName")" >> "$GITHUB_OUTPUT"
 
       - name: Install dependencies
         run: npm install --no-audit --no-fund
@@ -44,7 +44,7 @@ jobs:
           npm audit --omit=dev --json > npm-audit.json || true
           node tools/audit-gate.mjs npm-audit.json | tee npm-audit.log
 
-      - name: Signing identity (must be the V5.0 key so BeFyn installs over V5.0)
+      - name: Signing identity (must be the V5.0 key so FiT85 installs over V5.0)
         env:
           KEYSTORE_B64: ${{ secrets.BEFYN_V5_KEYSTORE_BASE64 }}
         run: |
@@ -56,7 +56,7 @@ jobs:
           fi
           keytool -list -v -keystore signing/debug.keystore -storepass android -alias androiddebugkey | grep -E "SHA256" | tee keystore-fingerprint.txt
           GOT=$(sed 's/.*SHA256: *//' keystore-fingerprint.txt | tr -d ': \n' | tr 'A-F' 'a-f'); WANT=$(tr -d ': \n' < signing/V5_CERT_SHA256.txt | tr 'A-F' 'a-f')
-          test "$GOT" = "$WANT" || { echo "::error::The keystore is not the V5.0 signing identity. BeFyn would not install over V5.0."; exit 1; }
+          test "$GOT" = "$WANT" || { echo "::error::The keystore is not the V5.0 signing identity. FiT85 would not install over V5.0."; exit 1; }
 
       - name: Check the app (logic tests, contrast, syntax, imports, security scan)
         run: |
@@ -97,7 +97,7 @@ jobs:
       - name: Upload the APK
         uses: actions/upload-artifact@v4
         with:
-          name: BeFyn_V${{ steps.ver.outputs.name }}-APK
+          name: FiT85_V${{ steps.ver.outputs.name }}-APK
           path: dist/*.apk
           if-no-files-found: error
 
@@ -105,7 +105,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: BeFyn_V${{ steps.ver.outputs.name }}-build-logs
+          name: FiT85_V${{ steps.ver.outputs.name }}-build-logs
           path: |
             build-*.log
             npm-audit.log

@@ -166,7 +166,7 @@ export async function migrateFromV5({ repos, storage, loadSeed, now = () => new 
   const backup = { kind: 'befyn-pre-v6-backup', at: now(), state: raw, vault: safeGet(storage, LEGACY.vault), vaultSalt: safeGet(storage, LEGACY.vaultSalt) };
   let file = null;
   try { await repos.write([repos.meta.op('backup.pre-v6', backup)]); } catch (e) { return fail('backup', 'A safety backup could not be saved, so the upgrade was stopped before changing anything.'); }
-  try { if (writeBackupFile) file = await writeBackupFile(`BeFyn-pre-v6-backup-${stamp}.json`, JSON.stringify(backup)); } catch (_) { /* file copy is best effort; the in-app copy exists */ }
+  try { if (writeBackupFile) file = await writeBackupFile(`FiT85-pre-v6-backup-${stamp}.json`, JSON.stringify(backup)); } catch (_) { /* file copy is best effort; the in-app copy exists */ }
 
   // 2. map + verify
   const mapped = mapLegacy(S, seed);

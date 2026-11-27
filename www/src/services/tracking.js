@@ -20,7 +20,7 @@ export function installTracking(app) {
     const def = MEASURE_TYPES.find((t) => t.id === type); const v = Number(value);
     if (!def) return fail('invalid', 'Choose what you measured.');
     if (!Number.isFinite(v) || v <= 0) return fail('invalid', 'Enter a number greater than zero.');
-    const rec = { id: uid('meas'), type, value: v, unit: def.unit, date: date || app.today(), recordedAt: new Date().toISOString(), source: 'manual', provenance: 'Entered in BeFyn', notes };
+    const rec = { id: uid('meas'), type, value: v, unit: def.unit, date: date || app.today(), recordedAt: new Date().toISOString(), source: 'manual', provenance: 'Entered in FiT85', notes };
     await repos.write([repos.measurements.op(rec)]); await app.refresh(); return ok({ record: rec });
   };
   app.deleteMeasurement = async (id) => { await repos.write([repos.measurements.delOp(id)]); await app.refresh(); return ok(); };
@@ -29,7 +29,7 @@ export function installTracking(app) {
 
   /** Body weight from the app and from Health Connect side by side, never merged silently. */
   app.weightSources = () => {
-    const mine = app.state.measurements.filter((m) => m.type === 'weight').map((m) => ({ date: m.date, value: m.value, source: 'Entered in BeFyn' }));
+    const mine = app.state.measurements.filter((m) => m.type === 'weight').map((m) => ({ date: m.date, value: m.value, source: 'Entered in FiT85' }));
     const ext = app.state.health.filter((h) => h.type === 'weight').map((h) => ({ date: h.start.slice(0, 10), value: Math.round(h.value * 10) / 10, source: h.source + ' (Health Connect)' }));
     return [...mine, ...ext].sort((a, b) => (a.date < b.date ? 1 : -1));
   };

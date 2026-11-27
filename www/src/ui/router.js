@@ -30,12 +30,12 @@ export function createRouter({ root, routes, app, badge }) {
     catch (e) { console.error(e); out = { title: 'Something went wrong', content: h('div', { class: 'empty' }, h('h2', {}, 'This screen could not load'), h('p', { class: 'muted' }, String((e && e.message) || e)), h('a', { class: 'btn', href: '#/today' }, 'Go to Today')) }; }
     if (my !== token) return; // a newer navigation won
     current = { path: m.path, route: m.route, out };
-    if (m.route.full) { page.replaceChildren(); page.hidden = true; document.title = 'BeFyn'; mountFull(out); return; }
+    if (m.route.full) { page.replaceChildren(); page.hidden = true; document.title = 'FiT85'; mountFull(out); return; }
     page.hidden = false; removeFull();
     const titleBlock = h('h1', {}, out.title, out.subtitle && h('span', { class: 'sub' }, out.subtitle));
     head.replaceChildren(...[m.route.depth ? h('button', { class: 'icon-btn', 'aria-label': 'Back', onclick: () => back(m.route.parent), style: { marginLeft: '-8px' } }, icon('back')) : null, titleBlock, ...(out.actions || [])].filter(Boolean));
     clear(page); page.append(out.content); drawNav(m.route.tab);
-    document.title = `${out.title} · BeFyn`;
+    document.title = `${out.title} · FiT85`;
     page.scrollTop = same || keepScroll ? scroll : 0;
     if (!same && !keepScroll) page.focus({ preventScroll: true });
   }

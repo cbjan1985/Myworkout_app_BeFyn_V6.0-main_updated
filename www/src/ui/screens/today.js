@@ -12,7 +12,7 @@ import { APP_NAME, VERSION_LABEL, DESIGNER } from '../../version.js';
 export async function today(app, ctx) {
   const s = app.state, t = app.today(); const p = s.programme; const rr = ctx.rerender;
   const kids = [h('div', { class: 'brand' }, h('img', { src: 'assets/app_icon.png', alt: '' }), h('div', {}, h('div', { class: 'bn' }, APP_NAME, h('span', { class: 'ver' }, VERSION_LABEL)), h('div', { class: 'bc' }, s.prefs.profile?.name ? `Hello, ${s.prefs.profile.name}. ${DESIGNER}` : DESIGNER)))];
-  if (s.degraded) kids.push(banner(['Storage is not available on this device right now, so changes will not be saved after you close BeFyn. ', s.degradedReason || ''], { kind: 'err', icon: 'warn' }));
+  if (s.degraded) kids.push(banner(['Storage is not available on this device right now, so changes will not be saved after you close FiT85. ', s.degradedReason || ''], { kind: 'err', icon: 'warn' }));
 
   if (s.draft) kids.push(card([h('div', { class: 'row' }, h('span', { class: 'lead item', style: { width: '40px', minHeight: '40px', padding: 0, justifyContent: 'center' } }, icon('play', 22)), h('div', { class: 'grow' }, h('h2', {}, 'Workout in progress'), h('p', { class: 'muted small' }, s.draft.name))), h('div', { class: 'row', style: { marginTop: '12px' } }, btn('Continue', () => app.router.navigate('/workout'), { block: true }), btn('Discard', async () => { if (await confirmDialog({ title: 'Discard this workout?', message: 'The sets you logged so far will be lost.', confirmLabel: 'Discard', danger: true })) { await app.discardDraft(); toast('Workout discarded'); } }, { kind: 'secondary' }))], 'tint'));
 

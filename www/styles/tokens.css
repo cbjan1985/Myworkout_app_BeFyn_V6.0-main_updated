@@ -1,4 +1,4 @@
-/* BeFyn design tokens. Brand colours come from the V6.0 design system; semantic tokens are validated by tools/check.mjs. */
+/* FiT85 design tokens. Brand colours come from the V6.0 design system; semantic tokens are validated by tools/check.mjs. */
 :root {
   --brand-deep: #164E52; --brand-teal: #267C78; --brand-mint: #75C9B7; --brand-ivory: #F5F3EE; --brand-stone: #D8D5CE;
   color-scheme: light;

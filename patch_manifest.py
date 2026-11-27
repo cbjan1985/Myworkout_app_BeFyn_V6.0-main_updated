@@ -41,7 +41,7 @@ if not no_health:
                  '        <intent-filter>\n            <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />\n            <category android:name="android.intent.category.HEALTH_PERMISSIONS" />\n        </intent-filter>\n    </activity-alias>\n')
         s = s.replace("</application>", alias + "    </application>", 1)
 
-# BeFyn keeps health data on the phone: do not let Android upload app data to cloud backups, never allow cleartext traffic.
+# FiT85 keeps health data on the phone: do not let Android upload app data to cloud backups, never allow cleartext traffic.
 s = s.replace('android:allowBackup="true"', 'android:allowBackup="false"')
 if 'usesCleartextTraffic' not in s:
     s = s.replace('<application', '<application android:usesCleartextTraffic="false" android:networkSecurityConfig="@xml/network_security_config"', 1)

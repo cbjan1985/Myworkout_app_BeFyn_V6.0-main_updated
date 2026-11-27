@@ -1,4 +1,4 @@
-/* Flash screen: the V5.0 look (black, glowing logo, name, "Designed by CB", progress), 3.5 s, name changed to BeFyn. */
+/* Flash screen: the V5.0 look (black, glowing logo, name, "Designed by CB", progress), 3.5 s, name changed to FiT85. */
 #splash { position: fixed; inset: 0; z-index: 9999; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; transition: opacity .35s ease; }
 #splash.out { opacity: 0; pointer-events: none; }
 #splash .sg { position: absolute; width: 520px; height: 520px; border-radius: 50%; background: radial-gradient(circle, rgba(40, 90, 190, .45) 0%, rgba(0, 0, 0, 0) 65%); animation: sglow 3.5s ease-in-out infinite alternate; }

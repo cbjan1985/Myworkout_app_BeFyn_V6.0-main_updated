@@ -13,7 +13,7 @@ const TABS = [['overview', 'Overview'], ['strength', 'Strength'], ['activity', '
 export async function progress(app, ctx) {
   const rr = ctx.rerender; const ins = app.insights(); const has = app.state.logs.length > 0;
   const needsLogs = ['overview', 'strength'].includes(tab);
-  const body = !has && needsLogs ? empty({ icon: 'progress', title: 'Your progress will appear here', text: 'Complete your first workout and BeFyn shows strength, consistency and records. Nothing to set up.', action: btn('Go to Today', () => app.router.navigate('/today')) }) : ({ overview, strength, activity, history, body: bodyTab, nutrition })[tab](app, ins, rr);
+  const body = !has && needsLogs ? empty({ icon: 'progress', title: 'Your progress will appear here', text: 'Complete your first workout and FiT85 shows strength, consistency and records. Nothing to set up.', action: btn('Go to Today', () => app.router.navigate('/today')) }) : ({ overview, strength, activity, history, body: bodyTab, nutrition })[tab](app, ins, rr);
   const bar = h('div', { class: 'seg scroll', role: 'tablist', 'aria-label': 'Progress sections' }, TABS.map(([v, l]) => h('button', { type: 'button', role: 'tab', 'aria-selected': String(v === tab), onclick: () => { tab = v; rr(); } }, l)));
   return { title: 'Progress', content: h('div', { class: 'stack-lg' }, bar, body) };
 }
@@ -92,7 +92,7 @@ function bodyTab(app, ins, rr) {
     card([h('div', { class: 'row between' }, h('h2', {}, def.label), btn('Add', () => app.router.navigate('/more/health'), { kind: 'text', sm: true })), chart || h('p', { class: 'muted' }, pts.length ? 'Add entries over two weeks or more to see a trend.' : 'No entries yet.'), h('p', { class: 'small muted', style: { marginTop: '8px' } }, measureType === 'weight' ? ins.weightText : describeTrend(t, def.unit, def.label.toLowerCase()))])];
   const rows = MEASURE_TYPES.filter((x) => latestM[x.id]).map((x) => item({ title: x.label, meta: `${latestM[x.id].value} ${x.unit} on ${prettyDate(latestM[x.id].date)}`, chev: false }));
   if (rows.length) kids.push(sectionTitle('Latest measurements'), list(rows));
-  if (app.weightSources().some((x) => x.source.includes('Health Connect')) && app.weightSources().some((x) => !x.source.includes('Health Connect'))) kids.push(banner('Weights from BeFyn and from Health Connect are both shown. They are not merged, so you can see where each came from.', { kind: 'info' }));
+  if (app.weightSources().some((x) => x.source.includes('Health Connect')) && app.weightSources().some((x) => !x.source.includes('Health Connect'))) kids.push(banner('Weights from FiT85 and from Health Connect are both shown. They are not merged, so you can see where each came from.', { kind: 'info' }));
   return h('div', { class: 'stack-lg' }, kids);
 }
 

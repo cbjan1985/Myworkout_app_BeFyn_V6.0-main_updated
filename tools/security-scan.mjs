@@ -1,4 +1,4 @@
-// BeFyn static security scan (no network needed). Complements, and does not replace, npm audit / MobSF / Semgrep / Gitleaks in CI.
+// FiT85 static security scan (no network needed). Complements, and does not replace, npm audit / MobSF / Semgrep / Gitleaks in CI.
 // Areas: secrets, dangerous browser APIs, CSP, Android configuration, dependencies, CI workflow, storage/crypto rules.
 // Exit code 1 if any finding of severity P0 or P1 is not suppressed. Usage: node tools/security-scan.mjs [--json]
 import fs from 'node:fs';
@@ -26,7 +26,7 @@ for (const f of text) {
   const t = read(f);
   for (const [re, name] of SECRET_RULES) { const m = re.exec(t); if (m) { const sev = /password|credential/.test(name) && /(storepass|keypass) *[:=] *['"]android['"]/i.test(m[0]) ? 'P3' : 'P0'; add('SEC-SECRET-' + name.replace(/\W+/g, '-').toUpperCase(), sev, 'Secrets', rel(f), `Possible ${name}: "${m[0].slice(0, 40)}..."`, 'Remove it, rotate the credential, and keep it in a repository secret.'); } }
 }
-for (const f of all.filter((x) => /\.(jks|keystore|p12|pfx|pem)$/i.test(x))) add('SEC-KEYSTORE-IN-REPO', 'P2', 'Secrets', rel(f), 'A signing keystore file is committed. It is the V5.0 debug identity (alias androiddebugkey, the Android default password) that lets BeFyn install over V5.0, so it protects nothing secret, but a signing file in source control is still poor practice.', 'Store it as the repository secret BEFYN_V5_KEYSTORE_BASE64 (the workflow already prefers it) and delete the file. The workflow verifies the certificate fingerprint either way.', 'accepted-risk');
+for (const f of all.filter((x) => /\.(jks|keystore|p12|pfx|pem)$/i.test(x))) add('SEC-KEYSTORE-IN-REPO', 'P2', 'Secrets', rel(f), 'A signing keystore file is committed. It is the V5.0 debug identity (alias androiddebugkey, the Android default password) that lets FiT85 install over V5.0, so it protects nothing secret, but a signing file in source control is still poor practice.', 'Store it as the repository secret BEFYN_V5_KEYSTORE_BASE64 (the workflow already prefers it) and delete the file. The workflow verifies the certificate fingerprint either way.', 'accepted-risk');
 for (const f of all) if (/signing-secrets|\.env$|id_rsa|\.npmrc$/.test(path.basename(f))) add('SEC-SECRET-FILE', 'P0', 'Secrets', rel(f), 'A credentials file is present in the repository.', 'Delete it, rotate anything it contained, and add it to .gitignore.');
 
 /* ---------- 2. dangerous browser APIs in app code ---------- */
@@ -63,7 +63,7 @@ for (const f of appCode.filter((x) => /\.js$/.test(x))) { const t = read(f); for
   const perms = [...pm.matchAll(/"(android\.permission\.[A-Z_]+)"/g)].map((m) => m[1]);
   const DENY = /READ_SMS|SEND_SMS|CAMERA|RECORD_AUDIO|ACCESS_FINE_LOCATION|ACCESS_COARSE_LOCATION|READ_CONTACTS|READ_CALL_LOG|READ_PHONE_STATE|SYSTEM_ALERT_WINDOW|REQUEST_INSTALL_PACKAGES|WRITE_EXTERNAL_STORAGE|BIND_ACCESSIBILITY_SERVICE/;
   for (const p of perms) if (DENY.test(p)) add('AND-PERM-DENY', 'P1', 'Android', 'patch_manifest.py', `Disallowed permission ${p}.`, 'Remove it.');
-  if (perms.includes('android.permission.MANAGE_EXTERNAL_STORAGE')) add('AND-PERM-ALLFILES', 'P3', 'Android', 'patch_manifest.py', 'MANAGE_EXTERNAL_STORAGE (all files access) is declared for the optional exercise-media folder feature that V5.0 users rely on. Android only grants it if the person turns it on in system settings, and BeFyn asks only when that feature is used. Google Play would not accept it; BeFyn is sideloaded.', 'Attach media per exercise with the file picker (no permission needed, already available). The folder feature can then be removed in a future release.', 'accepted-risk');
+  if (perms.includes('android.permission.MANAGE_EXTERNAL_STORAGE')) add('AND-PERM-ALLFILES', 'P3', 'Android', 'patch_manifest.py', 'MANAGE_EXTERNAL_STORAGE (all files access) is declared for the optional exercise-media folder feature that V5.0 users rely on. Android only grants it if the person turns it on in system settings, and FiT85 asks only when that feature is used. Google Play would not accept it; FiT85 is sideloaded.', 'Attach media per exercise with the file picker (no permission needed, already available). The folder feature can then be removed in a future release.', 'accepted-risk');
   if (!/health\./.test(pm)) add('AND-HEALTH', 'P3', 'Android', 'patch_manifest.py', 'No Health Connect permissions are declared.', 'Expected unless Health Connect was removed.', 'potential'); }
 
 /* ---------- 5. dependencies ---------- */

@@ -11,10 +11,10 @@ fail() { echo "::error::$*"; exit 1; }
 need() { [ -e "$1" ] || fail "Expected file or folder is missing: $1 ($2)"; }
 
 APP_ID=$(node -p "require('./capacitor.config.json').appId")
-VERSION_NAME=$(node -p "require('./package.json').befyn.versionName")
-VERSION_CODE=$(node -p "require('./package.json').befyn.versionCode")
+VERSION_NAME=$(node -p "require('./package.json').fit85.versionName")
+VERSION_CODE=$(node -p "require('./package.json').fit85.versionCode")
 DIR="android/app/src/main/java/$(echo "$APP_ID" | tr . /)"
-echo "BeFyn $VERSION_NAME (code $VERSION_CODE), app id $APP_ID, Health Connect: $([ $HEALTH = 1 ] && echo yes || echo no)"
+echo "FiT85 $VERSION_NAME (code $VERSION_CODE), app id $APP_ID, Health Connect: $([ $HEALTH = 1 ] && echo yes || echo no)"
 
 say "1. Web app is complete"
 need www/index.html "web entry"; need www/src/main.js "app entry"; need www/assets/seed/programme-8wk-muscle-gain.json "seed programme"; need www/assets/seed/exercises.json "seed exercises"
@@ -31,10 +31,10 @@ say "3. Patch version, Kotlin/Health Connect, manifest, launch screen"
 FLAG=""; [ $HEALTH = 0 ] && FLAG="--no-health"
 python3 patch_gradle.py --version-name "$VERSION_NAME" --version-code "$VERSION_CODE" $FLAG
 STY=android/app/src/main/res/values/styles.xml
-[ -f "$STY" ] && sed -i 's#@drawable/splash#@color/befyn_splash#g' "$STY" || echo "styles.xml not found: keeping the default launch screen"
+[ -f "$STY" ] && sed -i 's#@drawable/splash#@color/fit85_splash#g' "$STY" || echo "styles.xml not found: keeping the default launch screen"
 mkdir -p "$DIR"
 cp android-overrides/MainActivity.java android-overrides/GifFolderPlugin.java "$DIR/"
-if [ $HEALTH = 1 ]; then cp android-overrides/BeFynHealthPlugin.kt "$DIR/"; else sed -i '/HEALTH_PLUGIN/d' "$DIR/MainActivity.java"; fi
+if [ $HEALTH = 1 ]; then cp android-overrides/FiT85HealthPlugin.kt "$DIR/"; else sed -i '/HEALTH_PLUGIN/d' "$DIR/MainActivity.java"; fi
 sed -i "s/APP_PACKAGE/$APP_ID/" "$DIR"/*.java; ls "$DIR"/*.kt >/dev/null 2>&1 && sed -i "s/APP_PACKAGE/$APP_ID/" "$DIR"/*.kt || true
 python3 patch_manifest.py $FLAG
 end
@@ -49,7 +49,7 @@ end
 
 say "5. Icons, resources and signing key"
 cp -r android-res/. android/app/src/main/res/
-need signing/debug.keystore "the fixed signing key that lets BeFyn install over V5.0"
+need signing/debug.keystore "the fixed signing key that lets FiT85 install over V5.0"
 mkdir -p ~/.android && cp signing/debug.keystore ~/.android/debug.keystore
 echo "Signing certificate fingerprint (must be the same for every build that should upgrade in place):"
 keytool -list -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey 2>/dev/null | grep -E "SHA-?256|Owner" || echo "(could not read certificate; Gradle will report signing problems)"

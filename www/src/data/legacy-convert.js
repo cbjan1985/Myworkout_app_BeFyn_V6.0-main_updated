@@ -1,4 +1,4 @@
-// Converts V5.0 plan rows (one row per set/round, Left/Right split) into compact BeFyn template sessions.
+// Converts V5.0 plan rows (one row per set/round, Left/Right split) into compact FiT85 template sessions.
 // Shared by the build-time seed generator (Node) and the runtime migration (browser), so both behave identically.
 import { slug } from '../core/util.js';
 

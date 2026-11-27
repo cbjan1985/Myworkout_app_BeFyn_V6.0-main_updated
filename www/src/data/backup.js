@@ -25,10 +25,10 @@ const isPlain = (x) => x !== null && typeof x === 'object' && !Array.isArray(x);
 
 export function validateBackup(b) {
   const errors = [];
-  if (!b || typeof b !== 'object') return ['This file is not a BeFyn backup.'];
-  if (b.format !== BACKUP_FORMAT) errors.push('This file is not a BeFyn backup.');
+  if (!b || typeof b !== 'object') return ['This file is not a FiT85 backup.'];
+  if (b.format !== BACKUP_FORMAT) errors.push('This file is not a FiT85 backup.');
   if (typeof b.schema !== 'number') errors.push('The backup has no version.');
-  else if (b.schema > SCHEMA_VERSION) errors.push('This backup was made by a newer version of BeFyn. Update the app first.');
+  else if (b.schema > SCHEMA_VERSION) errors.push('This backup was made by a newer version of FiT85. Update the app first.');
   if (!b.data || typeof b.data !== 'object') errors.push('The backup has no data.');
   else for (const [store, key] of Object.entries(REQUIRED_KEYS)) {
     const rows = b.data[store];

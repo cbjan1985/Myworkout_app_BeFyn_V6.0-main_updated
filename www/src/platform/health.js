@@ -1,7 +1,7 @@
 import { callNative } from './env.js';
 import { uid } from '../core/util.js';
 
-/** Data types BeFyn can read from Android Health Connect. Read-only; nothing is ever written back. */
+/** Data types FiT85 can read from Android Health Connect. Read-only; nothing is ever written back. */
 export const HEALTH_TYPES = [
   { id: 'steps', label: 'Steps', unit: 'steps' },
   { id: 'activeCalories', label: 'Active calories', unit: 'kcal' },
@@ -13,7 +13,7 @@ export const HEALTH_TYPES = [
   { id: 'oxygenSaturation', label: 'Oxygen saturation (SpO2)', unit: '%' },
   { id: 'height', label: 'Height', unit: 'cm' },
 ];
-const PLUGIN = 'BeFynHealth';
+const PLUGIN = 'FiT85Health';
 
 /** availability: available | not_installed | update_required | not_supported | unavailable (plugin missing, e.g. in a browser) */
 export async function status() {
@@ -24,7 +24,7 @@ export async function status() {
 export async function requestAccess(types) { const r = await callNative(PLUGIN, 'requestHealthAccess', { types }); return r.ok ? { ok: true, granted: r.value.granted || [] } : { ok: false, message: r.message || 'Health Connect is not available on this device.' }; }
 export async function openSettings() { return callNative(PLUGIN, 'openSettings'); }
 
-/** Maps native records to BeFyn HealthRecords with provenance and a dedup key (source + external id). */
+/** Maps native records to FiT85 HealthRecords with provenance and a dedup key (source + external id). */
 export function toRecord(type, n, syncedAt) {
   const def = HEALTH_TYPES.find((t) => t.id === type);
   return { id: uid('hc'), extKey: `hc:${type}:${n.source || 'unknown'}:${n.id || n.start}`, type, value: n.value, unit: def?.unit || n.unit || '', start: n.start, end: n.end || n.start, source: n.source || 'Unknown app', sourceType: 'health-connect', extra: n.extra || undefined, syncedAt };
@@ -49,7 +49,7 @@ export async function sync(repos, { types, days = 30, now = () => new Date() } =
 }
 export const labelOf = (t) => HEALTH_TYPES.find((x) => x.id === t)?.label || t;
 export function availabilityMessage(a) {
-  return ({ not_installed: 'Health Connect is not installed on this phone. You can install it from Google Play, then come back.', update_required: 'Health Connect needs an update before BeFyn can use it.', not_supported: 'This Android version does not support Health Connect.', unavailable: 'Health Connect is only available in the Android app.' })[a] || 'Health Connect is not available.';
+  return ({ not_installed: 'Health Connect is not installed on this phone. You can install it from Google Play, then come back.', update_required: 'Health Connect needs an update before FiT85 can use it.', not_supported: 'This Android version does not support Health Connect.', unavailable: 'Health Connect is only available in the Android app.' })[a] || 'Health Connect is not available.';
 }
 
 /**

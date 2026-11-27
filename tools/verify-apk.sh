@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Finds the APK Gradle really produced, checks it, and copies it to dist/ with the release file name.
-# Usage: tools/verify-apk.sh [--suffix _no-health]   Fails clearly (exit 1) if no APK exists or it is not BeFyn.
+# Usage: tools/verify-apk.sh [--suffix _no-health]   Fails clearly (exit 1) if no APK exists or it is not FiT85.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 SUFFIX=""; [ "${1:-}" = "--suffix" ] && SUFFIX="${2:-}"
-VERSION_NAME=$(node -p "require('./package.json').befyn.versionName")
+VERSION_NAME=$(node -p "require('./package.json').fit85.versionName")
 APP_ID=$(node -p "require('./capacitor.config.json').appId")
 echo "APK files under android/ build outputs:"
 mapfile -t APKS < <(find android -path '*build/outputs/apk*' -name '*.apk' 2>/dev/null | sort)
@@ -26,7 +26,7 @@ if [ -d "$BT" ]; then
     if "$TOOLS/aapt" dump badging "$SRC" 2>/dev/null | grep -q "application-debuggable"; then echo "::error::The APK is debuggable (private data readable over adb)."; exit 1; fi
     PERMS=$("$TOOLS/aapt" dump permissions "$SRC" 2>/dev/null | sed -n "s/^uses-permission: name='\(.*\)'.*/\1/p" | sort -u); echo "Permissions in the final APK:"; echo "$PERMS" | sed 's/^/  /'
     DENY='READ_SMS|SEND_SMS|CAMERA|RECORD_AUDIO|ACCESS_FINE_LOCATION|ACCESS_COARSE_LOCATION|READ_CONTACTS|READ_CALL_LOG|READ_PHONE_STATE|SYSTEM_ALERT_WINDOW|REQUEST_INSTALL_PACKAGES|WRITE_EXTERNAL_STORAGE|BIND_ACCESSIBILITY_SERVICE'
-    if echo "$PERMS" | grep -Eq "$DENY"; then echo "::error::The APK requests a permission BeFyn must never have: $(echo "$PERMS" | grep -E "$DENY" | tr '\n' ' ')"; exit 1; fi
+    if echo "$PERMS" | grep -Eq "$DENY"; then echo "::error::The APK requests a permission FiT85 must never have: $(echo "$PERMS" | grep -E "$DENY" | tr '\n' ' ')"; exit 1; fi
     ALLOWED='INTERNET|ACCESS_NETWORK_STATE|VIBRATE|WAKE_LOCK|POST_NOTIFICATIONS|RECEIVE_BOOT_COMPLETED|SCHEDULE_EXACT_ALARM|USE_EXACT_ALARM|READ_EXTERNAL_STORAGE|MANAGE_EXTERNAL_STORAGE|health\.READ_[A-Z_]+|DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
     echo "$PERMS" | grep -Ev "($ALLOWED)$" | sed "s/^/::warning::Unreviewed permission in the APK: /" || true
     if "$TOOLS/aapt" dump xmltree "$SRC" AndroidManifest.xml 2>/dev/null | grep -q 'allowBackup.*=(type 0x12)0xffffffff'; then echo "::error::Android cloud backup is enabled in the APK."; exit 1; fi
@@ -40,7 +40,7 @@ if [ -d "$BT" ]; then
   else echo "::warning::apksigner not available: signature not verified"; fi
 fi
 SIZE=$(stat -c %s "$SRC"); [ "$SIZE" -gt 1000000 ] || { echo "::error::The APK is suspiciously small ($SIZE bytes)."; exit 1; }
-mkdir -p dist; OUT="dist/BeFyn_V${VERSION_NAME}${SUFFIX}.apk"; cp "$SRC" "$OUT"
+mkdir -p dist; OUT="dist/FiT85.apk"; cp "$SRC" "$OUT"
 echo "Verified APK: $SRC -> $OUT ($SIZE bytes)"
 echo "apk_path=$OUT" >> "${GITHUB_OUTPUT:-/dev/null}"
-{ echo "### BeFyn APK"; echo "- File: \`$(basename "$OUT")\` ($((SIZE / 1024)) KB)"; echo "- Built from: \`$SRC\`"; echo "- Health Connect: $([ -z "$SUFFIX" ] && echo included || echo 'NOT included (fallback build)')"; } >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
+{ echo "### FiT85 APK"; echo "- File: \`$(basename "$OUT")\` ($((SIZE / 1024)) KB)"; echo "- Built from: \`$SRC\`"; echo "- Health Connect: $([ -z "$SUFFIX" ] && echo included || echo 'NOT included (fallback build)')"; } >> "${GITHUB_STEP_SUMMARY:-/dev/null}"

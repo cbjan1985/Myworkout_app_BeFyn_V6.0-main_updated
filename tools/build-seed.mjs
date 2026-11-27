@@ -1,4 +1,4 @@
-// Converts the V5.0 hard-coded plan (legacy/plan_v4.js) into BeFyn seed data:
+// Converts the V5.0 hard-coded plan (legacy/plan_v4.js) into FiT85 seed data:
 //   www/assets/seed/programme-8wk-muscle-gain.json  (ProgrammeTemplate, published v1)
 //   www/assets/seed/exercises.json                  (Exercise Master records)
 // Run: node tools/build-seed.mjs

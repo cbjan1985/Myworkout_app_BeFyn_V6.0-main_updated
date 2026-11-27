@@ -19,7 +19,7 @@ export async function encryptBackup(jsonText, password, subtle) {
   return { format: ENC_FORMAT, v: 1, kdf: { name: 'PBKDF2', hash: 'SHA-256', iterations: ITER, salt: b64(salt) }, cipher: { name: 'AES-GCM', iv: b64(iv) }, data: b64(new Uint8Array(data)) };
 }
 export async function decryptBackup(obj, password, subtle) {
-  if (!isEncrypted(obj) || obj.v !== 1 || obj.kdf?.name !== 'PBKDF2' || obj.cipher?.name !== 'AES-GCM') throw new Error('This is not a BeFyn encrypted backup.');
+  if (!isEncrypted(obj) || obj.v !== 1 || obj.kdf?.name !== 'PBKDF2' || obj.cipher?.name !== 'AES-GCM') throw new Error('This is not a FiT85 encrypted backup.');
   const iterations = Number(obj.kdf.iterations); if (!(iterations >= 100000 && iterations <= 5000000)) throw new Error('The backup uses unsupported settings.');
   const sub = subtleOf(subtle);
   try {

@@ -1,14 +1,14 @@
 import { plugin, isApp } from './env.js';
 import { todayIso } from '../core/util.js';
 
-/** Saves text the person can keep (backups, spreadsheets). Uses app Documents/BeFyn on Android, a download in the browser. */
+/** Saves text the person can keep (backups, spreadsheets). Uses app Documents/FiT85 on Android, a download in the browser. */
 export async function saveText(name, text, { share = false, mime = 'application/json' } = {}) {
   const FS = plugin('Filesystem');
   if (isApp() && FS) {
     try {
-      const r = await FS.writeFile({ path: `BeFyn/${name}`, data: text, directory: 'DOCUMENTS', encoding: 'utf8', recursive: true });
+      const r = await FS.writeFile({ path: `FiT85/${name}`, data: text, directory: 'DOCUMENTS', encoding: 'utf8', recursive: true });
       if (share) await shareFile(r.uri, name);
-      return { ok: true, where: `Documents/BeFyn/${name}`, uri: r.uri };
+      return { ok: true, where: `Documents/FiT85/${name}`, uri: r.uri };
     } catch (e) { return { ok: false, message: 'The file could not be saved: ' + String((e && e.message) || e) }; }
   }
   return download(name, new Blob([text], { type: mime }));
@@ -17,9 +17,9 @@ export async function saveBase64(name, b64, { share = false } = {}) {
   const FS = plugin('Filesystem');
   if (isApp() && FS) {
     try {
-      const r = await FS.writeFile({ path: `BeFyn/${name}`, data: b64, directory: 'DOCUMENTS', recursive: true });
+      const r = await FS.writeFile({ path: `FiT85/${name}`, data: b64, directory: 'DOCUMENTS', recursive: true });
       if (share) await shareFile(r.uri, name);
-      return { ok: true, where: `Documents/BeFyn/${name}`, uri: r.uri };
+      return { ok: true, where: `Documents/FiT85/${name}`, uri: r.uri };
     } catch (e) { return { ok: false, message: 'The file could not be saved: ' + String((e && e.message) || e) }; }
   }
   const bin = atob(b64); const buf = Uint8Array.from(bin, (c) => c.charCodeAt(0));
