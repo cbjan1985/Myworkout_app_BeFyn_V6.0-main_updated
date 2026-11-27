@@ -1,4 +1,4 @@
-name: Build BeFyn APK
+name: Build FiT85 APK
 
 on:
   push:
@@ -9,178 +9,107 @@ permissions:
   contents: read
 
 concurrency:
-  group: befyn-apk-${{ github.ref }}
-  cancel-in-progress: false
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
-    steps:
-      - name: Check out source
-        uses: actions/checkout@v4
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash   # GitHub runs this as 'bash -eo pipefail', so a failing command inside a pipe (| tee) fails the step
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      - name: Install dependencies
-        run: npm install
+      - name: Read the app version
+        id: ver
+        run: echo "name=$(node -p "require('./package.json').fit85.versionName")" >> "$GITHUB_OUTPUT"
 
-      - name: Run application checks
-        shell: bash
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Dependency audit (npm advisory database, production dependencies)
         run: |
-          set -euo pipefail
+          npm audit --omit=dev --json > npm-audit.json || true
+          node tools/audit-gate.mjs npm-audit.json | tee npm-audit.log
+
+      - name: Signing identity (must be the V5.0 key so FiT85 installs over V5.0)
+        env:
+          KEYSTORE_B64: ${{ secrets.BEFYN_V5_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > signing/debug.keystore
+            echo "Using the V5.0 keystore from the repository secret BEFYN_V5_KEYSTORE_BASE64"
+          else
+            echo "::warning::Using signing/debug.keystore from the repository. Store it as the secret BEFYN_V5_KEYSTORE_BASE64 and delete the file from the repository."
+          fi
+          keytool -list -v -keystore signing/debug.keystore -storepass android -alias androiddebugkey | grep -E "SHA256" | tee keystore-fingerprint.txt
+          GOT=$(sed 's/.*SHA256: *//' keystore-fingerprint.txt | tr -d ': \n' | tr 'A-F' 'a-f'); WANT=$(tr -d ': \n' < signing/V5_CERT_SHA256.txt | tr 'A-F' 'a-f')
+          test "$GOT" = "$WANT" || { echo "::error::The keystore is not the V5.0 signing identity. FiT85 would not install over V5.0."; exit 1; }
+
+      - name: Check the app (logic tests, contrast, syntax, imports, security scan)
+        run: |
           npm test
           node tools/check.mjs
+          node tools/security-scan.mjs
 
-      - name: Verify build inputs
-        shell: bash
+      - name: Add the spreadsheet library to the web app
         run: |
-          set -euo pipefail
-          test -f package.json
-          test -f capacitor.config.json
-          test -f www/index.html
-          test -f android-overrides/MainActivity.java
-          test -f android-overrides/GifFolderPlugin.java
-          test -f android-overrides/BeFynHealthPlugin.kt
-          test -f patch_manifest.py
-          test -f patch_gradle.py
-          test -f signing/debug.keystore
           test -f node_modules/xlsx/dist/xlsx.full.min.js
-
-      - name: Add Excel library to web assets
-        shell: bash
-        run: |
-          set -euo pipefail
           cp node_modules/xlsx/dist/xlsx.full.min.js www/xlsx.full.min.js
 
-      - name: Generate Capacitor Android project
-        shell: bash
-        run: |
-          set -euo pipefail
-          npx cap add android
-
-      - name: Configure BeFyn version
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -f android/app/build.gradle
-          sed -i 's/versionCode 1/versionCode 9/; s/versionName "1.0"/versionName "6.0"/' android/app/build.gradle
-
-      - name: Add native plugins, permissions and Health Connect configuration
-        shell: bash
-        run: |
-          set -euo pipefail
-          APP_ID="$(node -p "require('./capacitor.config.json').appId")"
-          JAVA_DIR="android/app/src/main/java/$(echo "$APP_ID" | tr . /)"
-          mkdir -p "$JAVA_DIR"
-          cp android-overrides/*.java android-overrides/*.kt "$JAVA_DIR/"
-          sed -i "s/APP_PACKAGE/$APP_ID/g" "$JAVA_DIR"/*.java "$JAVA_DIR"/*.kt
-          python3 patch_manifest.py
-          python3 patch_gradle.py
-
-      - name: Synchronise web assets and native plugins
-        shell: bash
-        run: |
-          set -euo pipefail
-          npx cap sync android
-          cp -r android-res/. android/app/src/main/res/
-
-      - name: Restore V5-compatible debug signing key
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p "$HOME/.android"
-          cp signing/debug.keystore "$HOME/.android/debug.keystore"
-
-      - name: Build APK with Health Connect
-        id: health_build
+      - name: Build the APK (with Health Connect)
+        id: full
         continue-on-error: true
-        working-directory: android
-        shell: bash
+        env:
+          BUILD_LOG: build-full.log
+        run: tools/android-build.sh
+
+      - name: Why the first build failed
+        if: steps.full.outcome == 'failure'
         run: |
-          set -euo pipefail
-          chmod +x ./gradlew
-          ./gradlew --no-daemon --stacktrace :app:assembleDebug 2>&1 | tee ../build-health-connect.log
+          echo "::warning::The build with Health Connect FAILED. Building without Health Connect instead. Key lines from the Gradle log:"
+          grep -nE "FAILURE:|What went wrong|error:|^e: |Execution failed|Could not " build-full.log | head -40 || true
+          { echo "### The Health Connect build failed"; echo '```'; grep -nE "FAILURE:|What went wrong|error:|^e: |Execution failed|Could not " build-full.log | head -25 || true; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Rebuild without Health Connect if native Health build fails
-        id: fallback_build
-        if: steps.health_build.outcome == 'failure'
-        shell: bash
+      - name: Build the APK (fallback without Health Connect)
+        id: fallback
+        if: steps.full.outcome == 'failure'
+        env:
+          BUILD_LOG: build-fallback.log
+        run: tools/android-build.sh --no-health
+
+      - name: Verify the APK exists and is correct
         run: |
-          set -euo pipefail
-          echo "::warning::Health Connect build failed. Recreating the Android project without the optional Health Connect native plugin."
-          APP_ID="$(node -p "require('./capacitor.config.json').appId")"
-          JAVA_DIR="android/app/src/main/java/$(echo "$APP_ID" | tr . /)"
+          if [ "${{ steps.full.outcome }}" = "success" ]; then tools/verify-apk.sh; else tools/verify-apk.sh --suffix _no-health; fi
 
-          rm -rf android
-          npx cap add android
-
-          sed -i 's/versionCode 1/versionCode 9/; s/versionName "1.0"/versionName "6.0"/' android/app/build.gradle
-
-          mkdir -p "$JAVA_DIR"
-          cp android-overrides/MainActivity.java android-overrides/GifFolderPlugin.java "$JAVA_DIR/"
-          sed -i '/HEALTH_PLUGIN/d' "$JAVA_DIR/MainActivity.java"
-          sed -i "s/APP_PACKAGE/$APP_ID/g" "$JAVA_DIR"/*.java
-
-          python3 patch_manifest.py --no-health
-          python3 patch_gradle.py --no-health
-          npx cap sync android
-          cp -r android-res/. android/app/src/main/res/
-
-          mkdir -p "$HOME/.android"
-          cp signing/debug.keystore "$HOME/.android/debug.keystore"
-
-          cd android
-          chmod +x ./gradlew
-          ./gradlew --no-daemon --stacktrace :app:assembleDebug 2>&1 | tee ../build-fallback.log
-
-      - name: Locate and verify generated APK
-        if: always() && (steps.health_build.outcome == 'success' || steps.fallback_build.outcome == 'success')
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "APK files produced by Gradle:"
-          find android/app/build/outputs/apk -type f -name '*.apk' -print -exec ls -lh {} \;
-
-          APK="$(find android/app/build/outputs/apk -type f -name '*.apk' | grep '/debug/.*\.apk$' | head -n 1 || true)"
-          if [ -z "$APK" ] || [ ! -s "$APK" ]; then
-            echo "::error::Gradle reported success, but no non-empty debug APK was found."
-            find android/app/build/outputs -maxdepth 6 -type f -print 2>/dev/null || true
-            exit 1
-          fi
-
-          mkdir -p artifacts
-          cp "$APK" artifacts/BeFyn_V6.0-debug.apk
-          test -s artifacts/BeFyn_V6.0-debug.apk
-          sha256sum artifacts/BeFyn_V6.0-debug.apk
-          ls -lh artifacts/BeFyn_V6.0-debug.apk
-
-      - name: Upload BeFyn V6.0 APK
-        if: success()
+      - name: Upload the APK
         uses: actions/upload-artifact@v4
         with:
-          name: BeFyn_V6.0-APK
-          path: artifacts/BeFyn_V6.0-debug.apk
+          name: FiT85_V${{ steps.ver.outputs.name }}-APK
+          path: dist/*.apk
           if-no-files-found: error
-          compression-level: 6
-          overwrite: true
 
-      - name: Upload Gradle diagnostics
-        if: always() && (steps.health_build.outcome == 'failure' || steps.fallback_build.outcome == 'failure')
+      - name: Upload build logs
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: BeFyn_V6.0-build-diagnostics
+          name: FiT85_V${{ steps.ver.outputs.name }}-build-logs
           path: |
-            build-health-connect.log
-            build-fallback.log
-          if-no-files-found: warn
-          compression-level: 6
+            build-*.log
+            npm-audit.log
+            npm-audit.json
+            keystore-fingerprint.txt
+          if-no-files-found: ignore
+          retention-days: 14
