@@ -23,7 +23,7 @@ test('the scanner catches seeded vulnerabilities (so a clean result means someth
   const dir = copyProject();
   fs.writeFileSync(path.join(dir, 'www/src/evil.js'), 'export const a = eval("1+1"); document.getElementById("x").innerHTML = "<b>" + location.hash; const password = "hunter2hunter2"; const u = "javascript:alert(1)"; setTimeout("x()", 1);\nconst k = "http://example.org/leak";\n');
   const idx = path.join(dir, 'www/index.html'); fs.writeFileSync(idx, fs.readFileSync(idx, 'utf8').replace("script-src 'self'", "script-src 'self' 'unsafe-eval' https://evil.example"));
-  const wf = path.join(dir, '.github/workflows/build-apk.yml'); fs.writeFileSync(wf, fs.readFileSync(wf, 'utf8').replace(/shell: bash/, '').replace(/if-no-files-found: error/, 'if-no-files-found: warn'));
+  const wf = path.join(dir, '.github/workflows/build-apk.yml'); fs.writeFileSync(wf, fs.readFileSync(wf, 'utf8').replace(/^[ \t]*shell:\s*bash\b.*$/gm, '').replace(/if-no-files-found: error/, 'if-no-files-found: warn'));
   const pm = path.join(dir, 'patch_manifest.py'); fs.writeFileSync(pm, fs.readFileSync(pm, 'utf8').replace('allowBackup="false"', 'allowBackup="true"').replace('"android.permission.VIBRATE",', '"android.permission.VIBRATE", "android.permission.READ_SMS",'));
   const pg = path.join(dir, 'patch_gradle.py'); fs.writeFileSync(pg, fs.readFileSync(pg, 'utf8').replace(/debuggable false/g, 'debuggable true'));
   const pj = path.join(dir, 'package.json'); const j = JSON.parse(fs.readFileSync(pj, 'utf8')); j.dependencies.xlsx = '0.18.5'; j.dependencies.evil = 'git+https://example.org/x.git'; fs.writeFileSync(pj, JSON.stringify(j));
