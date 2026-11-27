@@ -33,7 +33,7 @@ export function openPreview(app, op, { title = 'Review the change', onDone, intr
   if (p.suggestion) body.push(banner(p.suggestion.message, { kind: 'info' }));
   body.push(h('p', { class: 'small muted' }, 'Completed sessions and your history are never changed. You can undo this right after.'));
   sheet.setContent(h('div', { class: 'stack' }, body));
-  sheet.setActions([{ label: 'Cancel', kind: 'secondary' }, { label: 'Apply', disabled: !p.valid || !p.changes.length && op.type !== 'pause', busy: true, onClick: async () => {
+  sheet.setActions([{ label: 'Cancel', kind: 'secondary' }, { label: 'Apply', disabled: !p.valid || (!p.changes.length && !['pause', 'resume'].includes(op.type) && !(p.notes || []).length), busy: true, onClick: async () => {
     const r = await app.applySchedule(op);
     if (!r.ok) { toast(r.error.message); return false; }
     toast(r.change.summary, { action: { label: 'Undo', onClick: async () => { const u = await app.undoSchedule(r.change.id); toast(u.ok ? 'Change undone' : u.error.message); onDone && onDone(); } } });

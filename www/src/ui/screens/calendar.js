@@ -1,11 +1,11 @@
 import { h } from '../dom.js';
 import { btn, iconBtn, card, pill, list, item, sectionTitle, empty, banner } from '../components.js';
-import { prettyDate, addDays, dow, weekStart, monthStart, MONTHS, DOW_LONG } from '../../core/util.js';
+import { prettyDate, addDays, dow, weekStart, monthStart, MONTHS, DOW_LONG, DOW_SHORT as DOW_SHORT_ } from '../../core/util.js';
 import { effDate } from '../../domain/schedule-engine.js';
 import { openSessionSheet, statusPill } from '../session-view.js';
 import { openMissedSheet, openMoveWeekSheet, openShiftSheet, openJumpSheet, openRestartSheet, openPauseSheet, openResyncSheet, openChangeLog } from '../sheets.js';
 
-let view = null;
+let view = null; let mode = 'month';
 
 export async function calendar(app, ctx) {
   const t = app.today(); if (!view) view = { month: monthStart(t), selected: t };
@@ -39,6 +39,13 @@ export async function calendar(app, ctx) {
     h('div', { class: 'legend', style: { marginTop: '10px' } }, [['done', 'Done'], ['planned', 'Planned'], ['missed', 'Waiting'], ['skipped', 'Skipped'], ['rest', 'Rest']].map(([k, l]) => h('span', {}, h('i', { class: 'dot ' + k }), l))),
   ]);
 
+  // week view: seven days in a row, each with its sessions
+  const wkStart = weekStart(view.selected);
+  const weekCard = card([h('div', { class: 'row between', style: { marginBottom: '8px' } }, iconBtn('back', 'Previous week', () => { view.selected = addDays(view.selected, -7); view.month = monthStart(view.selected); rr(); }), h('h2', { 'aria-live': 'polite' }, `${prettyDate(wkStart)} \u2013 ${prettyDate(addDays(wkStart, 6))}`), iconBtn('chev', 'Next week', () => { view.selected = addDays(view.selected, 7); view.month = monthStart(view.selected); rr(); })),
+    h('div', { class: 'stack' }, Array.from({ length: 7 }, (_, i) => addDays(wkStart, i)).map((iso) => { const ss0 = bySession.get(iso) || [], ls0 = logsBy.get(iso) || []; const k = kind(iso);
+      return h('div', { class: 'row', style: { alignItems: 'flex-start', gap: '10px' } }, h('button', { class: 'day' + (iso === t ? ' today' : ''), type: 'button', style: { width: '56px', flex: 'none', aspectRatio: 'auto', minHeight: '56px' }, 'aria-pressed': String(iso === view.selected), 'aria-label': `${DOW_LONG[dow(iso)]} ${Number(iso.slice(8))}`, onclick: () => { view.selected = iso; rr(); } }, h('span', { class: 'small muted' }, DOW_SHORT_[dow(iso)]), h('span', { class: 'dn' }, Number(iso.slice(8)))),
+        h('div', { class: 'grow stack' }, ss0.length || ls0.length ? [...ss0.map((s) => item({ title: s.name, meta: `Week ${s.week}`, trailing: statusPill(s, t), onClick: () => openSessionSheet(app, s, rr) })), ...ls0.map((l) => item({ title: l.name, meta: l.durationSec ? `${Math.round(l.durationSec / 60)} min` : 'Logged', trailing: pill('Done', 'ok'), chev: false }))].map((n) => h('div', { class: 'list' }, n)) : h('p', { class: 'small muted', style: { padding: '14px 0' } }, k === 'rest' ? 'Rest day' : 'Nothing planned')));
+    }))]);
   // agenda for the selected day
   const sel = view.selected, ss = (bySession.get(sel) || []), ls = (logsBy.get(sel) || []);
   const rows = [];
@@ -50,7 +57,7 @@ export async function calendar(app, ctx) {
   const agenda = [sectionTitle(prettyDate(sel, true) + (sel === t ? ' (today)' : ''))];
   if (rows.length) agenda.push(list(rows)); else agenda.push(card(h('p', { class: 'muted' }, range && sel >= range[0] && sel <= range[1] ? 'Rest day. Recovery is part of the programme.' : 'Nothing planned.')));
 
-  const kids = [grid, ...agenda];
+  const kids = mode === 'week' ? [weekCard] : [grid, ...agenda];
   if (!p) kids.push(empty({ icon: 'calendar', title: 'No active programme', text: 'Start a programme in Train to see your plan here. Activities you log still appear on the calendar.', action: btn('Go to Train', () => app.router.navigate('/train')) }));
   else {
     const st = app.scheduleStatus(); const paused = p.instance.status === 'paused'; const done = p.instance.status === 'completed';
@@ -66,5 +73,6 @@ export async function calendar(app, ctx) {
       item({ title: 'Schedule changes', meta: app.state.changes.length ? `${app.state.changes.length} recorded, latest can be undone` : 'No changes yet', lead: 'list', onClick: () => openChangeLog(app, rr) }),
     ]));
   }
+  kids.unshift(h('div', { class: 'seg', role: 'group', 'aria-label': 'Calendar view' }, [['month', 'Month'], ['week', 'Week']].map(([v, l]) => h('button', { type: 'button', 'aria-pressed': String(mode === v), onclick: () => { mode = v; rr(); } }, l))));
   return { title: 'Calendar', actions: [btn('Today', () => { view = { month: monthStart(t), selected: t }; ctx.rerender(); }, { kind: 'text', sm: true })], content: h('div', { class: 'stack-lg' }, kids) };
 }

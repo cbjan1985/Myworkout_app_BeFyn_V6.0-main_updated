@@ -27,11 +27,14 @@ export function makeRegistry(details = {}, existing = []) {
       const base = row.n.replace(/\s*\((each side|left|right)[^)]*\)/i, '');
       let id = row.x || byName.get(norm(base)) || slug(base);
       let e = map.get(id);
+      if (e && !e.instructions && (row.dtx || row.how)) e.instructions = row.dtx || row.how;       // V5 programme text (warm-up, stretch, yoga) becomes the exercise's instructions
+      if (e && !e.breathing && (row.bth || row.tmx)) e.breathing = row.bth || row.tmx;
+      if (e && !e.targets && (row.tg || row.tp)) e.targets = row.tg || row.tp;
       if (!e) {
         const det = row.x ? details[row.x] : null;
         e = {
           id, name: row.n, category: catOf(row), primaryMuscles: split(det ? det.p : row.m), secondaryMuscles: split(det ? det.s : ''), equipment: equipOf(row),
-          difficulty: det ? det.d : '', description: '', startingPosition: '', instructions: det ? det.i : (row.how || row.cue || ''), breathing: det ? det.b : (row.bth || row.tmx || ''),
+          difficulty: det ? det.d : '', description: '', startingPosition: '', instructions: det ? det.i : (row.dtx || row.how || row.cue || ''), breathing: det ? det.b : (row.bth || row.tmx || ''),
           commonMistakes: [], safetyNotes: [], variations: det && det.a ? [det.a] : [], progressions: [], targets: row.tg || row.tp || '', media: [],
           legacyMediaKey: row.n.toLowerCase().trim(), source: 'befyn-seed', version: 1,
         };

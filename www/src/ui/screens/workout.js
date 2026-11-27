@@ -1,7 +1,7 @@
 // Workout execution: a focused full-screen flow. Every logged set is persisted immediately, so an interruption never loses work.
 import { h } from '../dom.js';
 import { openSheet, toast, confirmDialog } from '../dom.js';
-import { btn, iconBtn, stepper, banner, pill, chips, list, item, textarea, field, progressBar } from '../components.js';
+import { btn, iconBtn, stepper, banner, pill, chips, list, item, textarea, field, progressBar, toggle } from '../components.js';
 import { icon } from '../icons.js';
 import { ring } from '../charts.js';
 import { SECTION_LABEL } from '../../domain/programme.js';
@@ -41,15 +41,25 @@ export async function workout(app, ctx) {
     await app.recordSet(draft, idx, rec);
     const next = idx + 1;
     if (next >= steps.length) return goto(steps.length - 1, 'summary');
-    const rest = rec.done ? (step.restAfterRound || (step.section === 'main' && !step.last && step.blockType === 'straight' ? prefs().workout.restSec : 0)) : 0;
-    if (rest > 0) { st.next = next; return startRest(rest); }
+    const nx = steps[next], pw = prefs().workout;
+    const sameEx = nx.item.exercise === step.item.exercise && step.sideOf !== 'Left';
+    const nextIsRight = step.sideOf === 'Left'; // Left -> Right is one movement: no rest, no transition
+    let rest = 0, label = 'Rest';
+    if (rec.done && !nextIsRight) {
+      rest = step.restAfterRound || 0;
+      if (!rest && step.section === 'main' && step.blockType === 'straight') rest = sameEx ? pw.restSec : pw.breakSec;   // between sets: rest; between exercises: break
+      if (!rest && step.section === 'breathing' && nx.section === 'breathing') rest = pw.breathBreakSec;
+    }
+    if (rest > 0 && pw.autoRest === false) { st.pendingRest = { sec: rest, next }; rest = 0; }
+    if (rest > 0) { st.next = next; return startRest(rest, label); }
+    if (rec.done && !nextIsRight && pw.transitionSec > 0 && nx.item.exercise !== step.item.exercise) { st.next = next; return startRest(pw.transitionSec, 'Get ready'); }
     if (steps[next].section !== step.section) { say(`Next: ${SECTION_LABEL[steps[next].section]}`); toast(`Next: ${SECTION_LABEL[steps[next].section]}`); }
     goto(next);
   };
 
   /* ---------- rest ---------- */
-  function startRest(sec) {
-    stopTimer(); st.phase = 'rest'; st.restTotal = sec; st.restEnd = Date.now() + sec * 1000; draw(); say(`Rest. Next: ${steps[st.next].item.name}`);
+  function startRest(sec, label = 'Rest') {
+    stopTimer(); st.phase = 'rest'; st.restLabel = label; st.restTotal = sec; st.restEnd = Date.now() + sec * 1000; draw(); say(`${label}. Next: ${steps[st.next].item.name}`);
     let said = -1;
     st.timer = { h: setInterval(() => {
       if (!isLive()) return stopTimer();
@@ -111,10 +121,10 @@ export async function workout(app, ctx) {
       h('p', { class: 'muted' }, [targetText({ ...it, sets: 1 }), it.cue, step.note].filter(Boolean).join(' \u00b7 ')),
       mediaBox];
     if (hist.length || (sug && sug.basis === 'history')) kids.push(h('div', { class: 'card' }, hist.length ? h('p', { class: 'small' }, h('strong', {}, 'Last time: '), hist[0].sets.filter((s) => s.done !== false).map((s) => `${s.reps || s.secs}${s.kg ? ` \u00d7 ${s.kg} kg` : ''}`).join(', '), ` (${prettyDate(hist[0].date)})`) : null, sug ? h('p', { class: 'small', style: { marginTop: '4px' } }, h('strong', {}, 'Suggestion: '), sug.reason) : null));
-    if (ex && (ex.instructions || ex.breathing || ex.commonMistakes?.length)) kids.push(h('details', { class: 'card' }, h('summary', { class: 'strong', style: { cursor: 'pointer', minHeight: '32px' } }, 'How to do it'), h('div', { class: 'stack', style: { marginTop: '8px' } }, ex.instructions && h('p', {}, ex.instructions), ex.breathing && h('p', { class: 'small' }, h('strong', {}, 'Breathing: '), ex.breathing), (ex.commonMistakes || []).length ? h('p', { class: 'small' }, h('strong', {}, 'Avoid: '), ex.commonMistakes.join('; ')) : null, it.how && !ex.instructions ? h('p', {}, it.how) : null)));
+    if ((ex && (ex.instructions || ex.breathing || ex.commonMistakes?.length)) || it.how || it.detail) kids.push(h('details', { class: 'card' }, h('summary', { class: 'strong', style: { cursor: 'pointer', minHeight: '32px' } }, 'How to do it'), h('div', { class: 'stack', style: { marginTop: '8px' } }, ex.instructions && h('p', {}, ex.instructions), ex.breathing && h('p', { class: 'small' }, h('strong', {}, 'Breathing: '), ex.breathing), (ex.commonMistakes || []).length ? h('p', { class: 'small' }, h('strong', {}, 'Avoid: '), ex.commonMistakes.join('; ')) : null, (it.how || it.detail) && !ex.instructions ? h('p', {}, it.how || it.detail) : null)));
     body.replaceChildren(...kids);
 
-    const skipRow = h('div', { class: 'row' }, st.i > 0 ? btn('Back', undoLast, { kind: 'text', sm: true, icon: 'undo' }) : null, h('span', { class: 'grow' }), btn('Skip set', () => advance({ done: false }), { kind: 'text', sm: true }), btn('Skip exercise', skipExercise, { kind: 'text', sm: true }));
+    const skipRow = h('div', { class: 'row' }, st.i > 0 ? btn('Back', undoLast, { kind: 'text', sm: true, icon: 'undo' }) : null, h('span', { class: 'grow' }), btn('Skip set', () => advance({ done: false }), { kind: 'text', sm: true }), btn('Skip exercise', skipExercise, { kind: 'text', sm: true }), btn('Finish early', finishEarly, { kind: 'text', sm: true }));
     if (breathing || timed) {
       const total = breathing ? 0 : it.secs;
       const ui = { t: h('div', { class: 'timer num' }, timed ? fmt(total) : '--:--'), r: ring(1), p: h('div', { class: 'ex-title center' }, 'Ready'), c: h('div', { class: 'small muted center' }, ''), b: h('div', { style: { width: '120px', height: '120px', borderRadius: '50%', background: 'var(--accent-soft)', border: '3px solid var(--accent)', transition: 'transform .3s linear', transform: 'scale(.55)' } }) };
@@ -134,6 +144,7 @@ export async function workout(app, ctx) {
       body.append(h('div', { class: 'card stack' }, h('div', { class: 'row' }, h('div', { class: 'grow' }, h('div', { class: 'small strong', style: { marginBottom: '6px' } }, 'Reps'), reps), showKg ? h('div', { class: 'grow' }, h('div', { class: 'small strong', style: { marginBottom: '6px' } }, 'Weight (kg)'), kg) : null)));
       foot.replaceChildren(btn(step.section === 'main' ? 'Log set' : 'Done', () => advance({ reps: reps.get(), kg: showKg ? kg.get() : 0, done: true }), { block: true, icon: 'check' }), skipRow);
     }
+    if (st.pendingRest && st.pendingRest.next === st.i) { const pr = st.pendingRest; st.pendingRest = null; foot.prepend(btn(`Start ${pr.sec}s rest`, () => { st.next = st.i; startRest(pr.sec, 'Rest'); }, { kind: 'secondary', block: true })); }
     if (st.autoSay) { announce(); st.autoSay = false; }
   }
   async function resolveMedia(box, ex) {
@@ -145,6 +156,7 @@ export async function workout(app, ctx) {
       box.replaceChildren(h('div', { class: 'stack center', style: { padding: '16px' } }, th ? h('img', { src: th, alt: '', style: { maxHeight: '140px', borderRadius: '8px' }, onerror: (e) => e.target.remove() }) : icon('image', 40), h('a', { class: 'btn secondary sm', href: url, target: '_blank', rel: 'noopener' }, icon('link', 18), link ? 'Watch demo video' : 'Find a demo video')));
     } catch (_) { /* leave the placeholder */ }
   }
+  function finishEarly() { st.returnTo = st.i; goto(steps.length - 1, 'summary'); }
   async function undoLast() { stopTimer(); const prev = st.i - 1; await app.undoRecord(draft, prev); goto(prev); }
   async function skipExercise() {
     const step = steps[st.i]; let j = st.i;
@@ -154,8 +166,8 @@ export async function workout(app, ctx) {
 
   function drawRest() {
     const nx = steps[st.next]; const t = h('div', { class: 'timer num', role: 'timer', 'aria-label': 'Rest timer' }, fmt(Math.ceil((st.restEnd - Date.now()) / 1000))); const r = ring(1); restUi = { t, r };
-    body.replaceChildren(h('div', { class: 'center strong', style: { fontSize: 'var(--fs-lg)' } }, 'Rest'), h('div', { class: 'ring' }, r, t), h('div', { class: 'card' }, h('div', { class: 'small muted' }, 'Up next'), h('div', { class: 'strong', style: { fontSize: 'var(--fs-md)' } }, nx.item.name + (nx.item.side ? ` (${nx.item.side})` : '')), h('div', { class: 'small muted' }, targetText({ ...nx.item, sets: 1 }))));
-    foot.replaceChildren(btn('Skip rest', () => { stopTimer(); goto(st.next); announce(); }, { block: true }), btn('Add 15 seconds', () => { st.restEnd += 15000; st.restTotal += 15; }, { kind: 'secondary', block: true }));
+    body.replaceChildren(h('div', { class: 'center strong', style: { fontSize: 'var(--fs-lg)' } }, st.restLabel || 'Rest'), h('div', { class: 'ring' }, r, t), h('div', { class: 'card' }, h('div', { class: 'small muted' }, 'Up next'), h('div', { class: 'strong', style: { fontSize: 'var(--fs-md)' } }, nx.item.name + (nx.item.side ? ` (${nx.item.side})` : '')), h('div', { class: 'small muted' }, targetText({ ...nx.item, sets: 1 }))));
+    foot.replaceChildren(btn(st.restLabel === 'Get ready' ? 'Start now' : 'Skip rest', () => { stopTimer(); goto(st.next); announce(); }, { block: true }), btn('Add 15 seconds', () => { st.restEnd += 15000; st.restTotal += 15; }, { kind: 'secondary', block: true }));
   }
 
   function drawSummary() {
@@ -167,12 +179,15 @@ export async function workout(app, ctx) {
       h('div', { class: 'card metrics' }, h('div', { class: 'metric' }, h('div', { class: 'metric-v num' }, fmt(secs)), h('div', { class: 'metric-l' }, 'Time')), h('div', { class: 'metric' }, h('div', { class: 'metric-v num' }, logged), h('div', { class: 'metric-l' }, 'Sets done')), vol ? h('div', { class: 'metric' }, h('div', { class: 'metric-v num' }, vol), h('div', { class: 'metric-l' }, 'kg lifted')) : null),
       skipped ? h('p', { class: 'small muted' }, `${skipped} skipped. Skipped sets are not counted as done.`) : null,
       h('div', { class: 'card stack' }, h('div', { class: 'strong' }, 'How hard did it feel?'), chips(Array.from({ length: 10 }, (_, i) => [String(i + 1), String(i + 1)]), st.effort ? String(st.effort) : '', (v) => { st.effort = v ? +v : null; drawSummary(); }, 'Effort from 1 to 10'), h('p', { class: 'small muted' }, '1 is very easy, 10 is maximum effort. Optional, and used only for your recovery insights.')), field('Notes', notes), err);
+    const remaining = steps.filter((x) => !draft.records[x.index]).length; const mainTotal = steps.filter((x) => x.section === 'main').length, mainDone = steps.filter((x) => x.section === 'main' && draft.records[x.index]?.done).length;
+    if (st.countAsDone === undefined) st.countAsDone = !(remaining > 0 && mainTotal > 0 && mainDone / mainTotal < 0.5);
+    if (remaining > 0 && draft.kind === 'scheduled') body.append(h('div', { class: 'card stack' }, h('div', { class: 'strong' }, `${remaining} step${remaining === 1 ? '' : 's'} not done`), h('label', { class: 'row between' }, h('span', {}, h('span', { class: 'strong' }, 'Count this session as done'), h('span', { class: 'small muted', style: { display: 'block' } }, st.countAsDone ? 'Your programme moves on to the next session.' : 'Your sets are saved as a partial workout. The session stays to do.')), toggle(st.countAsDone, (v) => { st.countAsDone = v; drawSummary(); }, 'Count this session as done'))));
     foot.replaceChildren(btn(st.saving ? 'Saving\u2026' : 'Finish and save', async () => {
       if (st.saving) return; st.saving = true; drawSummary();
-      draft.notes = st.notes; const r = await app.finishSession(draft, { feedback: st.effort ? { effort: st.effort } : null, notes: st.notes }); st.saving = false;
+      draft.notes = st.notes; const r = await app.finishSession(draft, { feedback: st.effort ? { effort: st.effort } : null, notes: st.notes, countAsDone: st.countAsDone !== false }); st.saving = false;
       if (!r.ok) { drawSummary(); body.append(banner([r.error.message, ' Your sets are safe. Use Calendar > Jump ahead if you meant to continue from here.'], { kind: 'err', icon: 'warn' })); return; }
       st.result = r; st.phase = 'saved'; draw();
-    }, { block: true, icon: 'check', disabled: st.saving }), btn('Back to last set', undoLast, { kind: 'text' }));
+    }, { block: true, icon: 'check', disabled: st.saving }), btn(st.returnTo !== undefined ? 'Keep training' : 'Back to last set', () => { if (st.returnTo !== undefined) { const i = st.returnTo; st.returnTo = undefined; goto(i); } else undoLast(); }, { kind: 'text' }));
   }
   function drawSaved() {
     const r = st.result, nx = app.nextSession();
@@ -185,6 +200,7 @@ export async function workout(app, ctx) {
   function exitSheet() {
     openSheet({ title: 'Leave workout?', center: true, content: h('p', {}, 'Your logged sets are already saved. You can pick this workout up again from Today.'), actions: [
       { label: 'Keep going', kind: 'secondary' },
+      { label: 'Finish and save now', close: false, onClick: (api) => { api.close(); finishEarly(); return false; } },
       { label: 'Save and leave', close: false, onClick: (api) => { api.close(); leave(); app.router.navigate('/today'); return false; } },
       { label: 'Discard workout', kind: 'danger', close: false, onClick: async (api) => { api.close(); if (await confirmDialog({ title: 'Discard this workout?', message: 'Everything logged in this session will be lost.', confirmLabel: 'Discard', danger: true })) { leave(); await app.discardDraft(); app.router.navigate('/today'); } return false; } }] });
   }

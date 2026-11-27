@@ -31,7 +31,7 @@ export function flattenSession(session) {
       const items = block.items || [block];
       if (block.type && block.type !== 'straight') {
         const rounds = block.rounds || 1;
-        for (let r = 1; r <= rounds; r++) items.forEach((it, k) => emit({ section: sec, blockType: block.type, round: r, rounds, last: k === items.length - 1, restAfterRound: block.restAfterRound || 0, note: block.note }, it));
+        for (let r = 1; r <= rounds; r++) items.forEach((it, k) => emit({ section: sec, blockType: block.type, round: r, rounds, last: k === items.length - 1, restAfterRound: k === items.length - 1 ? block.restAfterRound || 0 : 0, note: block.note }, it));
       } else {
         const it = items[0]; const n = Math.max(sec === 'main' ? it.sets || 1 : 1, it.repeats || 1);
         for (let r = 1; r <= n; r++) emit({ section: sec, blockType: 'straight', round: r, rounds: n, last: true, restAfterRound: it.rest || 0 }, it);
@@ -81,11 +81,11 @@ export function expandWeeklyPattern({ weeks, pattern, progression = { everyWeeks
   for (let w = 1; w <= weeks; w++) {
     const bump = Math.floor((w - 1) / Math.max(1, progression.everyWeeks)) * (progression.addReps || 0);
     pattern.forEach((p, i) => {
-      const main = (p.items || []).map((it) => ({ type: 'straight', items: [{ ...clone(it), reps: it.reps ? it.reps + bump : it.reps, target: it.reps ? `${it.reps + bump} reps` : it.target }] }));
-      const sections = { main };
-      if (p.warmup?.length) sections.warmup = clone(p.warmup).map((it) => ({ sets: 1, ...it }));
-      if (p.cooldown?.length) sections.cooldown = clone(p.cooldown).map((it) => ({ sets: 1, ...it }));
-      sessions.push({ id: `w${w}-${slug(p.name)}-${i + 1}`, week: w, dayOfWeek: p.dayOfWeek ?? 1, name: p.name, kind: 'training', sections });
+      // pattern days hold `sections` (builder) or the older flat `items` / `warmup` / `cooldown` shape
+      const src = p.sections ? clone(p.sections) : { main: (p.items || []).map((it) => ({ type: 'straight', items: [clone(it)] })), ...(p.warmup?.length ? { warmup: clone(p.warmup).map((it) => ({ type: 'straight', items: [{ sets: 1, ...it }] })) } : {}), ...(p.cooldown?.length ? { cooldown: clone(p.cooldown).map((it) => ({ type: 'straight', items: [{ sets: 1, ...it }] })) } : {}) };
+      if (bump) for (const b of src.main || []) if (!b.type || b.type === 'straight') for (const it of b.items) if (it.reps) { it.reps += bump; delete it.target; }
+      for (const k of Object.keys(src)) if (!src[k].length) delete src[k];
+      sessions.push({ id: `w${w}-${slug(p.name)}-${i + 1}`, week: w, dayOfWeek: p.dayOfWeek ?? 1, name: p.name, kind: 'training', sections: src });
     });
   }
   return sessions;

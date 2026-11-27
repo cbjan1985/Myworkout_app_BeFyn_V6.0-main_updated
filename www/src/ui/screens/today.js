@@ -5,11 +5,13 @@ import { icon } from '../icons.js';
 import { prettyDate, DOW_LONG } from '../../core/util.js';
 import { weekSummary, phaseLabel } from '../../domain/programme.js';
 import { openMissedSheet, openPauseSheet } from '../sheets.js';
+import { openProgrammeSheet } from './train.js';
 import { openSessionSheet, estimateMinutes, countExercises } from '../session-view.js';
+import { APP_NAME, VERSION_LABEL, DESIGNER } from '../../version.js';
 
 export async function today(app, ctx) {
   const s = app.state, t = app.today(); const p = s.programme; const rr = ctx.rerender;
-  const kids = [];
+  const kids = [h('div', { class: 'brand' }, h('img', { src: 'assets/app_icon.png', alt: '' }), h('div', {}, h('div', { class: 'bn' }, APP_NAME, h('span', { class: 'ver' }, VERSION_LABEL)), h('div', { class: 'bc' }, s.prefs.profile?.name ? `Hello, ${s.prefs.profile.name}. ${DESIGNER}` : DESIGNER)))];
   if (s.degraded) kids.push(banner(['Storage is not available on this device right now, so changes will not be saved after you close BeFyn. ', s.degradedReason || ''], { kind: 'err', icon: 'warn' }));
 
   if (s.draft) kids.push(card([h('div', { class: 'row' }, h('span', { class: 'lead item', style: { width: '40px', minHeight: '40px', padding: 0, justifyContent: 'center' } }, icon('play', 22)), h('div', { class: 'grow' }, h('h2', {}, 'Workout in progress'), h('p', { class: 'muted small' }, s.draft.name))), h('div', { class: 'row', style: { marginTop: '12px' } }, btn('Continue', () => app.router.navigate('/workout'), { block: true }), btn('Discard', async () => { if (await confirmDialog({ title: 'Discard this workout?', message: 'The sets you logged so far will be lost.', confirmLabel: 'Discard', danger: true })) { await app.discardDraft(); toast('Workout discarded'); } }, { kind: 'secondary' }))], 'tint'));
@@ -23,7 +25,7 @@ export async function today(app, ctx) {
     else if (st.reramp && inst.status === 'active') kids.push(banner(st.reramp.message, { kind: 'info' }));
 
     const next = app.nextSession();
-    if (inst.status === 'completed') kids.push(card([h('h2', {}, 'Programme complete'), h('p', { class: 'muted' }, 'Well done. Start another programme from Train whenever you are ready.'), btn('Go to Train', () => app.router.navigate('/train'), { block: true })], 'tint'));
+    if (inst.status === 'completed') kids.push(card([h('h2', {}, 'Programme complete'), h('p', { class: 'muted', style: { margin: '4px 0 12px' } }, `You finished ${p.template.name}: ${app.adherence().completed} sessions logged. Well done.`), h('div', { class: 'stack' }, btn('Start it again', () => openProgrammeSheet(app, p.template, rr), { block: true }), btn('Choose another programme', () => app.router.navigate('/train'), { kind: 'secondary', block: true }), btn('Hide this', async () => { await app.dismissCompleted(); }, { kind: 'text' }))], 'tint'));
     else if (next && inst.status === 'active') {
       const plan = app.sessionPlan(next.id); const isToday = next.date === t; const overdue = next.date < t;
       const mins = plan ? estimateMinutes(plan.steps) : 0;

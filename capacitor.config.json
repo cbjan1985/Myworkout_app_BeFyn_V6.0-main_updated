@@ -3,7 +3,12 @@
   "appName": "BeFyn",
   "webDir": "www",
   "server": {
-    "androidScheme": "https"
+    "androidScheme": "https",
+    "cleartext": false
   },
-  "backgroundColor": "#F5F3EE"
+  "backgroundColor": "#000000",
+  "android": {
+    "allowMixedContent": false,
+    "webContentsDebuggingEnabled": false
+  }
 }

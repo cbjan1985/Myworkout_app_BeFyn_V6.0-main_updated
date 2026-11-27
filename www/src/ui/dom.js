@@ -48,6 +48,12 @@ export function openSheet({ title, content, actions = [], center = false, onClos
     if (e.key === 'Tab') { const f = [...sheet.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')].filter((x) => !x.disabled && x.offsetParent !== null); if (!f.length) return; const first = f[0], last = f[f.length - 1]; if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); } else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); } }
   };
   document.addEventListener('keydown', onKey, true);
+  // Any inline error line (.err) inside the sheet is linked to the sheet's form controls (aria-describedby + aria-invalid) while it has text.
+  new MutationObserver(() => {
+    const errs = [...body.querySelectorAll('.err')].filter((e) => e.textContent.trim()); const controls = body.querySelectorAll('input:not([type=hidden]), select, textarea');
+    errs.forEach((e, i) => { if (!e.id) e.id = `${id}err${i}`; });
+    controls.forEach((c) => { if (errs.length) { c.setAttribute('aria-describedby', errs.map((e) => e.id).join(' ')); c.setAttribute('aria-invalid', 'true'); } else { c.removeAttribute('aria-describedby'); c.removeAttribute('aria-invalid'); } });
+  }).observe(body, { childList: true, subtree: true, characterData: true });
   api.setContent(content || ''); api.setActions(actions);
   document.body.append(scrim); stack.push(api);
   history.pushState({ sheet: id }, '');

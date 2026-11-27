@@ -1,0 +1,18 @@
+/* Flash screen: the V5.0 look (black, glowing logo, name, "Designed by CB", progress), 3.5 s, name changed to BeFyn. */
+#splash { position: fixed; inset: 0; z-index: 9999; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; transition: opacity .35s ease; }
+#splash.out { opacity: 0; pointer-events: none; }
+#splash .sg { position: absolute; width: 520px; height: 520px; border-radius: 50%; background: radial-gradient(circle, rgba(40, 90, 190, .45) 0%, rgba(0, 0, 0, 0) 65%); animation: sglow 3.5s ease-in-out infinite alternate; }
+#splash .sl { position: relative; width: 176px; height: auto; border-radius: 38px; opacity: 0; transform: scale(.8); animation: slogo 1.1s .15s cubic-bezier(.2, .8, .2, 1) forwards; filter: drop-shadow(0 0 14px rgba(106, 167, 255, .55)); }
+#splash .sn { position: relative; margin-top: 26px; font: 800 30px system-ui, sans-serif; color: #eceef2; opacity: 0; animation: sfade .7s 1s forwards; }
+#splash .sb { position: relative; margin-top: 8px; font: 600 11px system-ui, sans-serif; letter-spacing: .32em; text-transform: uppercase; color: #9aa6c4; opacity: 0; animation: sfade .7s 1.5s forwards; }
+#splash .sline { position: relative; margin-top: 16px; height: 3px; width: 0; border-radius: 2px; background: #6aa7ff; box-shadow: 0 0 12px #6aa7ff; animation: sline 1s 2s ease forwards; }
+#splash .sbar { position: absolute; left: 18%; right: 18%; bottom: 74px; height: 3px; border-radius: 2px; background: #161a22; overflow: hidden; }
+#splash .sbar i { display: block; height: 100%; width: 0; background: #6aa7ff; animation: sbar 3.3s linear forwards; }
+#splash .sv { position: absolute; bottom: 34px; font: 600 13px system-ui, sans-serif; letter-spacing: .12em; color: #8a93a8; }
+@keyframes slogo { to { opacity: 1; transform: scale(1); } } @keyframes sfade { to { opacity: 1; } } @keyframes sline { to { width: 64px; } } @keyframes sbar { to { width: 100%; } } @keyframes sglow { to { transform: scale(1.12); opacity: .85; } }
+@media (prefers-reduced-motion: reduce) { #splash * { animation-duration: .01s !important; animation-delay: 0s !important; } }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand img { width: 44px; height: 44px; border-radius: 12px; flex: none; }
+.brand .bn { font-size: var(--fs-lg); font-weight: 750; line-height: 1.1; display: flex; align-items: center; gap: 8px; }
+.brand .ver { font-size: 12px; font-weight: 650; padding: 1px 8px; border-radius: 10px; background: var(--accent-soft); color: var(--accent-text); }
+.brand .bc { font-size: var(--fs-sm); color: var(--text-muted); }

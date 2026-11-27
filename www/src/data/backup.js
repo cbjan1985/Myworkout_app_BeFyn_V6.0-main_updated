@@ -3,7 +3,8 @@ import { STORES, SCHEMA_VERSION } from './db.js';
 import { ok, fail } from '../core/util.js';
 
 export const BACKUP_FORMAT = 'befyn-backup';
-export const APP_VERSION = '6.0.0';
+import { VERSION } from '../version.js';
+export const APP_VERSION = VERSION;
 const EXCLUDE_META = (r) => !String(r.key).startsWith('backup.');
 
 export async function exportBackup(repos, { includeLegacy = true } = {}) {
@@ -17,6 +18,11 @@ export async function exportBackup(repos, { includeLegacy = true } = {}) {
 
 const REQUIRED_KEYS = { templates: 'key', exercises: 'id', workouts: 'id', instances: 'id', scheduled: 'id', changes: 'id', logs: 'id', measurements: 'id', health: 'id', nutrition: 'id', reminders: 'id', prefs: 'key', meta: 'key' };
 
+const MAX_ROWS = 300000, DANGEROUS = new Set(['__proto__', 'constructor', 'prototype']);
+/** JSON.parse that drops keys able to pollute prototypes. Use for every imported file. */
+export const safeParse = (text) => JSON.parse(text, (k, v) => (DANGEROUS.has(k) ? undefined : v));
+const isPlain = (x) => x !== null && typeof x === 'object' && !Array.isArray(x);
+
 export function validateBackup(b) {
   const errors = [];
   if (!b || typeof b !== 'object') return ['This file is not a BeFyn backup.'];
@@ -28,8 +34,9 @@ export function validateBackup(b) {
     const rows = b.data[store];
     if (rows === undefined) continue; // older/partial backups are allowed
     if (!Array.isArray(rows)) { errors.push(`"${store}" is not a list.`); continue; }
-    const missing = rows.findIndex((r) => !r || r[key] === undefined);
-    if (missing >= 0) errors.push(`A record in "${store}" has no ${key}.`);
+    if (rows.length > MAX_ROWS) { errors.push(`"${store}" is unreasonably large.`); continue; }
+    const bad = rows.findIndex((r) => !isPlain(r) || r[key] === undefined || typeof r[key] === 'object');
+    if (bad >= 0) errors.push(`A record in "${store}" has no valid ${key}.`);
   }
   if (!errors.length) { // relationships
     const inst = new Set((b.data.instances || []).map((i) => i.id)), sess = new Set((b.data.scheduled || []).map((s) => s.id));

@@ -12,7 +12,7 @@ perms = [
     "android.permission.POST_NOTIFICATIONS",        # only requested when the person adds reminders
 ]
 if not no_health:
-    perms += ["android.permission.health." + x for x in ("READ_STEPS", "READ_ACTIVE_CALORIES_BURNED", "READ_HEART_RATE", "READ_SLEEP", "READ_EXERCISE", "READ_WEIGHT", "READ_BODY_FAT", "READ_HEIGHT")]
+    perms += ["android.permission.health." + x for x in ("READ_STEPS", "READ_ACTIVE_CALORIES_BURNED", "READ_HEART_RATE", "READ_SLEEP", "READ_EXERCISE", "READ_WEIGHT", "READ_BODY_FAT", "READ_HEIGHT", "READ_OXYGEN_SATURATION")]
 add = "".join(f'    <uses-permission android:name="{x}" />\n' for x in perms if x not in s)
 if add:
     assert "<application" in s
@@ -41,7 +41,10 @@ if not no_health:
                  '        <intent-filter>\n            <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />\n            <category android:name="android.intent.category.HEALTH_PERMISSIONS" />\n        </intent-filter>\n    </activity-alias>\n')
         s = s.replace("</application>", alias + "    </application>", 1)
 
-# BeFyn keeps health data on the phone: do not let Android upload app data to cloud backups.
+# BeFyn keeps health data on the phone: do not let Android upload app data to cloud backups, never allow cleartext traffic.
 s = s.replace('android:allowBackup="true"', 'android:allowBackup="false"')
+if 'usesCleartextTraffic' not in s:
+    s = s.replace('<application', '<application android:usesCleartextTraffic="false" android:networkSecurityConfig="@xml/network_security_config"', 1)
+assert 'android:debuggable="true"' not in s, 'the manifest must not mark the app debuggable'
 open(p, "w", encoding="utf-8").write(s)
 print("Manifest patched" + (" (without Health Connect)" if no_health else ""))

@@ -20,7 +20,7 @@ export function installLibrary(app) {
     const s = q.trim().toLowerCase();
     return app.state.exercises.filter((e) =>
       (!s || e.name.toLowerCase().includes(s) || (e.primaryMuscles || []).some((m) => m.toLowerCase().includes(s))) &&
-      (!f.category || e.category === f.category) && (!f.muscle || (e.primaryMuscles || []).concat(e.secondaryMuscles || []).some((m) => m.toLowerCase().includes(f.muscle.toLowerCase()))) &&
+      (!f.category || e.category === f.category) && (!f.difficulty || e.difficulty === f.difficulty) && (!f.muscle || (e.primaryMuscles || []).concat(e.secondaryMuscles || []).some((m) => m.toLowerCase().includes(f.muscle.toLowerCase()))) &&
       (!f.equipment || (e.equipment || []).includes(f.equipment))).sort((a, b) => a.name.localeCompare(b.name));
   };
   app.exercise = (id) => idx().get(id) || null;
@@ -50,10 +50,38 @@ export function installLibrary(app) {
     return { templates: [...names], logs: app.state.logs.filter((l) => (l.performances || []).some((p) => p.exercise === id)).length };
   };
 
+  /** Local image/GIF/video kept inside the app (no storage permission needed). One per exercise; replacing it removes the old one. */
+  app.attachExerciseMedia = async (id, file) => {
+    const e = idx().get(id); if (!e) return fail('not-found', 'Exercise not found.');
+    if (!file) return fail('invalid', 'Choose a file.');
+    const okType = /^(image|video)\//.test(file.type || '') || /\.(gif|png|jpe?g|webp|mp4|webm|mov|m4v|3gp)$/i.test(file.name || '');
+    if (!okType) return fail('invalid', 'Choose an image, GIF or video file.');
+    if (/svg/i.test(file.type || '') || /\.svg$/i.test(file.name || '')) return fail('invalid', 'SVG files are not accepted. Choose a PNG, JPEG, GIF, WebP or a video.');
+    if (file.size > 40 * 1024 * 1024) return fail('too-big', 'That file is over 40 MB. Choose a smaller one.');
+    const key = e.legacyMediaKey || e.name.toLowerCase();
+    if (!(await app.platform.media.putBlob(key, file))) return fail('storage', 'The file could not be stored on this device.');
+    const media = [...(e.media || []).filter((m) => m.kind !== 'file'), { kind: 'file', name: file.name, type: file.type || '', size: file.size, key }];
+    await repos.write([repos.exercises.op({ ...e, legacyMediaKey: key, media })]); await app.refresh(); return ok();
+  };
+  app.removeExerciseMedia = async (id) => {
+    const e = idx().get(id); if (!e) return fail('not-found', 'Exercise not found.');
+    await app.platform.media.removeBlob(e.legacyMediaKey || e.name.toLowerCase());
+    await repos.write([repos.exercises.op({ ...e, media: (e.media || []).filter((m) => m.kind !== 'file') })]); await app.refresh(); return ok();
+  };
+
+  /** A new, independent programme copied from an existing one (version 1 draft). */
+  app.duplicateTemplate = async (id) => {
+    const src = app.publishedTemplate(id) || app.state.templates.filter((t) => t.id === id).sort((a, b) => b.version - a.version)[0];
+    if (!src) return fail('not-found', 'Programme not found.');
+    const d = clone(src); d.id = uid('tpl'); d.version = 1; d.status = 'draft'; d.name = `${src.name} (copy)`; d.source = 'user'; d.createdAt = new Date().toISOString(); delete d.publishedAt; delete d.legacySignature;
+    const r = await repos.templates.save(d); if (!r.ok) return r; await app.refresh(); return ok({ draft: d });
+  };
+
   /* ---------------- saved workouts ---------------- */
   app.saveWorkout = async (w) => {
     if (!w.name?.trim()) return fail('invalid', 'Give the workout a name.');
-    const rec = { id: w.id || uid('wo'), category: 'custom', sections: {}, source: 'user', ...w, name: w.name.trim() };
+    const prev = w.id ? app.state.workouts.find((x) => x.id === w.id) : null;
+    const rec = { id: w.id || uid('wo'), category: 'custom', sections: {}, source: 'user', ...prev, ...w, name: w.name.trim() };
     await repos.write([repos.workouts.op(rec)]); await app.refresh(); return ok({ workout: rec });
   };
   app.deleteWorkout = async (id) => { await repos.write([repos.workouts.delOp(id)]); await app.refresh(); return ok(); };

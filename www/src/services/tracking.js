@@ -4,6 +4,7 @@ import * as Nutr from '../domain/nutrition.js';
 import * as Insights from '../domain/insights.js';
 import * as Progress from '../domain/progression.js';
 import * as HC from '../platform/health.js';
+import { buildNotifications } from '../domain/reminders.js';
 
 export const MEASURE_TYPES = [
   { id: 'weight', label: 'Body weight', unit: 'kg' }, { id: 'height', label: 'Height', unit: 'cm' }, { id: 'bodyFat', label: 'Body fat', unit: '%' }, { id: 'muscleMass', label: 'Muscle mass', unit: 'kg' },
@@ -41,6 +42,12 @@ export function installTracking(app) {
     const rec = { id: uid('nut'), date: date || app.today(), meal, item: item.trim(), proteinG: g, estimate: !!estimate, source: 'manual', recordedAt: new Date().toISOString() };
     await repos.write([repos.nutrition.op(rec)]); await app.refresh(); return ok({ entry: rec });
   };
+  app.updateProtein = async (id, patch) => {
+    const cur = app.state.nutrition.find((e) => e.id === id); if (!cur) return fail('not-found', 'That entry no longer exists.');
+    const g = patch.proteinG !== undefined ? Number(patch.proteinG) : cur.proteinG;
+    if (!(patch.item ?? cur.item).trim()) return fail('invalid', 'Describe what you ate.'); if (!(g > 0 && g <= 300)) return fail('invalid', 'Enter protein between 1 and 300 g.');
+    await repos.write([repos.nutrition.op({ ...cur, ...patch, proteinG: g, item: (patch.item ?? cur.item).trim() })]); await app.refresh(); return ok();
+  };
   app.removeProtein = async (id) => { await repos.write([repos.nutrition.delOp(id)]); await app.refresh(); return ok(); };
   app.proteinDay = (date) => Nutr.dayTotals(app.state.nutrition, date || app.today(), app.proteinTarget());
   app.proteinHistory = (days = 14) => Nutr.history(app.state.nutrition, app.today(), days, app.proteinTarget());
@@ -55,9 +62,10 @@ export function installTracking(app) {
   app.deleteReminder = async (id) => { await repos.write([repos.reminders.delOp(id)]); await app.refresh(); await app.applyReminders(); return ok(); };
   app.applyReminders = async () => {
     const N = P().notifications; if (!N) return { ok: false, reason: 'unsupported' };
-    const problems = N.validate(app.state.reminders);
-    const res = await N.scheduleAll(app.state.reminders);
-    return { ...res, problems };
+    const p = app.state.programme;
+    const plan = buildNotifications({ reminders: app.state.reminders, sessions: p ? p.sessions : [], instanceStatus: p ? p.instance.status : 'none', today: app.today(), now: new Date(), detailed: app.state.prefs.privacy?.notificationDetail === true });
+    const res = await N.scheduleAll(plan);
+    return { ...res, problems: N.validate(app.state.reminders), plan };
   };
   app.enableReminders = async () => { const p = await P().notifications.requestPermission(); return p; };
 
@@ -79,7 +87,7 @@ export function installTracking(app) {
     const records = Progress.personalRecords(strength).filter((r) => r.maxKg).sort((a, b) => (b.maxKg.date > a.maxKg.date ? 1 : -1)).slice(0, 12).map((r) => ({ ...r, name: s.exIndex.get(r.exercise)?.name || r.exercise }));
     const w = Insights.trend(app.weightSources().map((x) => ({ date: x.date, value: x.value })));
     return {
-      readiness: Insights.readiness(logs, today, health), load: Insights.trainingLoad(logs, today), weekly: Insights.sessionsPerWeek(logs, today, 8),
+      readiness: Insights.readiness(logs, today, health), load: Insights.trainingLoad(logs, today), loadSeries: Insights.weeklyLoad(logs, today, 8), weekly: Insights.sessionsPerWeek(logs, today, 8),
       muscles: Insights.muscleActivity(strength, today, 14), records, adherence: app.adherence(), weightTrend: w, weightText: Insights.describeTrend(w, 'kg', 'weight'),
       totals: { sessions: logs.length, minutes: Math.round(logs.reduce((t, l) => t + (l.durationSec || 0), 0) / 60) },
     };

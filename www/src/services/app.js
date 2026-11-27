@@ -15,6 +15,7 @@ export const DEFAULT_PREFS = {
   profile: { name: '', goal: '', onboarded: false },
   theme: { mode: 'light' },
   units: { weight: 'kg' },
+  privacy: { notificationDetail: false },
 };
 
 /**
@@ -30,6 +31,10 @@ export function createApp({ repos, platform, clock = todayIso }) {
       logs: [], measurements: [], nutrition: [], health: [], reminders: [], changes: [], draft: null, lastSync: null,
     },
     on: bus.on, emit: bus.emit,
+    _remT: null,
+    /** Re-plans notifications shortly after data changes (completed or moved sessions change what should fire). */
+    scheduleReminderRefresh() { if (!app.state.reminders.length) return; clearTimeout(app._remT); app._remT = setTimeout(() => { app.applyReminders().catch(() => {}); }, 1200); },
+    async dismissCompleted() { const p = app.state.programme; if (p?.instance.status === 'completed') { await repos.meta.set('completed.dismissed.' + p.instance.id, true); await app.refresh(); } },
     today: () => clock(),
 
     async refresh() {
@@ -42,7 +47,11 @@ export function createApp({ repos, platform, clock = todayIso }) {
       s.templates = templates; s.exercises = exercises.filter((e) => !e.archived); s.exIndex = new Map(exercises.map((e) => [e.id, e]));
       s.workouts = workouts; s.logs = logs; s.measurements = measurements; s.nutrition = nutrition; s.health = health; s.reminders = reminders;
       s.draft = draft || null; s.lastSync = lastSync || null; s.migration = migration || null;
-      const inst = await r.instances.active();
+      let inst = await r.instances.active();
+      if (!inst) { // a finished programme stays visible (so Today can celebrate it and offer the next step)
+        const done = (await r.instances.all()).filter((i) => i.status === 'completed').sort((a, b) => ((b.updatedAt || '') > (a.updatedAt || '') ? 1 : -1))[0];
+        if (done && !(await r.meta.get('completed.dismissed.' + done.id))) inst = done;
+      }
       if (inst) {
         const st = await r.loadInstanceState(inst.id); const template = await r.templates.get(inst.templateId, inst.templateVersion);
         if (st && template) {
@@ -52,6 +61,7 @@ export function createApp({ repos, platform, clock = todayIso }) {
         } else s.programme = null;
       } else { s.programme = null; s.changes = []; }
       app.emit('change', null);
+      app.scheduleReminderRefresh();
     },
 
     /* ------------------------------ programme lifecycle ------------------------------ */

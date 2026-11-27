@@ -10,6 +10,7 @@ export const HEALTH_TYPES = [
   { id: 'exercise', label: 'Exercise sessions', unit: 'min' },
   { id: 'weight', label: 'Weight', unit: 'kg' },
   { id: 'bodyFat', label: 'Body fat', unit: '%' },
+  { id: 'oxygenSaturation', label: 'Oxygen saturation (SpO2)', unit: '%' },
   { id: 'height', label: 'Height', unit: 'cm' },
 ];
 const PLUGIN = 'BeFynHealth';
@@ -20,7 +21,7 @@ export async function status() {
   if (!r.ok) return { availability: 'unavailable', granted: [], reason: r.reason, message: r.message };
   return { availability: r.value.availability, granted: r.value.granted || [] };
 }
-export async function requestAccess(types) { const r = await callNative(PLUGIN, 'requestHealthPermissions', { types }); return r.ok ? { ok: true, granted: r.value.granted || [] } : { ok: false, message: r.message || 'Health Connect is not available on this device.' }; }
+export async function requestAccess(types) { const r = await callNative(PLUGIN, 'requestHealthAccess', { types }); return r.ok ? { ok: true, granted: r.value.granted || [] } : { ok: false, message: r.message || 'Health Connect is not available on this device.' }; }
 export async function openSettings() { return callNative(PLUGIN, 'openSettings'); }
 
 /** Maps native records to BeFyn HealthRecords with provenance and a dedup key (source + external id). */

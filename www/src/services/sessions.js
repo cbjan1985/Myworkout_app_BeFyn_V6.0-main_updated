@@ -69,7 +69,7 @@ export function installSessions(app) {
    * Saves the session log and (for programme sessions) advances the cursor in ONE atomic write.
    * Calling it twice for the same scheduled session is safe: the second call reports alreadyCompleted.
    */
-  app.finishSession = async (draft, { feedback = null, notes = '', now = new Date() } = {}) => {
+  app.finishSession = async (draft, { feedback = null, notes = '', now = new Date(), countAsDone = true } = {}) => {
     const plan = app.planForDraft(draft); if (!plan) return fail('no-plan', 'The workout this belongs to no longer exists.');
     const performances = performancesFromDraft(draft, plan.steps);
     const date = app.today();
@@ -79,6 +79,13 @@ export function installSessions(app) {
     const prevPerf = (exId) => app.exerciseHistory(exId).map((h) => ({ date: h.date, exercise: exId, sets: h.sets }));
     for (const p of performances) { const nr = Progress.newRecords(prevPerf(p.exercise), { date, exercise: p.exercise, sets: p.sets }); if (nr.length) records.push({ exercise: p.exercise, name: p.name, records: nr }); }
 
+    if (draft.kind === 'scheduled' && !countAsDone) {
+      // Saved as a partial workout: the sets are kept in history, the programme session stays to do.
+      const sc0 = app.state.programme?.sessions.find((s) => s.id === draft.scheduledId);
+      const log = { id: `log-${draft.scheduledId}-partial-${now.getTime()}`, instanceId: app.state.programme?.instance.id, scheduledId: undefined, sessionRef: sc0?.ref, date, name: plan.name, ...base, status: 'partial' };
+      await repos.write([repos.logs.appendOp(log), { op: 'delete', store: 'meta', key: 'draft.session' }]);
+      app.state.draft = null; await app.refresh(); return ok({ log, records, partial: true });
+    }
     if (draft.kind === 'scheduled') {
       const p = app.state.programme; if (!p) return fail('no-programme', 'The programme for this session is no longer active.');
       const logId = `log-${draft.scheduledId}-r${p.sessions.find((s) => s.id === draft.scheduledId)?.run || 1}`;
@@ -117,6 +124,12 @@ export function installSessions(app) {
     await repos.write([repos.logs.appendOp(log)]); await app.refresh(); return ok({ log });
   };
 
+  /** Newest-first list of logs for the History screen. filter: {q, kind:'all'|'programme'|'activity'|'partial'} */
+  app.historyList = ({ q = '', kind = 'all' } = {}) => {
+    const s = q.trim().toLowerCase();
+    return app.state.logs.filter((l) => (!s || l.name.toLowerCase().includes(s) || (l.performances || []).some((p) => p.name.toLowerCase().includes(s)))
+      && (kind === 'all' || (kind === 'programme' && l.scheduledId) || (kind === 'activity' && (l.activity || l.source === 'quick-activity')) || (kind === 'partial' && l.status === 'partial')));
+  };
   /** Explicit, auditable correction of an existing log (never a silent overwrite). */
   app.correctLog = async (id, patch, reason) => { const r = await repos.logs.correct(id, patch, reason); if (r.ok) await app.refresh(); return r; };
 }

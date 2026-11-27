@@ -118,3 +118,7 @@ textarea.input { min-height: 88px; resize: vertical; } .input[aria-invalid="true
 .splash { position: fixed; inset: 0; background: var(--bg); display: grid; place-items: center; z-index: 100; } .splash .mark { width: 72px; height: 72px; border-radius: 20px; background: var(--primary); display: grid; place-items: center; color: var(--text-on-primary); font-weight: 800; font-size: 30px; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
 @media (min-width: 700px) { #app { border-left: 1px solid var(--border); border-right: 1px solid var(--border); } }
+
+.seg.scroll { overflow-x: auto; scrollbar-width: none; } .seg.scroll::-webkit-scrollbar { display: none; } .seg.scroll button { flex: 0 0 auto; min-width: 84px; }
+/* status shapes: state is never colour alone */
+.dot.done { border-radius: 50%; } .dot.planned { background: transparent; border: 2px solid var(--accent); } .dot.missed { border-radius: 1px; transform: rotate(45deg); } .dot.skipped { height: 3px; width: 10px; border-radius: 2px; }

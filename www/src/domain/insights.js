@@ -78,3 +78,14 @@ export function describeTrend(t, unit, label) {
   const dir = Math.abs(t.perWeek) < 0.05 ? 'is steady' : t.perWeek > 0 ? `is rising about ${Math.abs(t.perWeek)} ${unit} a week` : `is falling about ${Math.abs(t.perWeek)} ${unit} a week`;
   return `Your ${label} ${dir} (${t.points} entries). This shows direction only, not the cause.`;
 }
+
+/** Training load per week (oldest first) for the recovery trend chart. */
+export function weeklyLoad(logs, endDate, weeks = 8) {
+  const out = [];
+  for (let w = weeks - 1; w >= 0; w--) {
+    const to = addDays(endDate, -7 * w), from = addDays(to, -6);
+    const inWeek = logs.filter((l) => l.status === 'completed' && l.date >= from && l.date <= to);
+    out.push({ from, to, load: sum(inWeek, (l) => sessionLoad(l).load), sessions: inWeek.length });
+  }
+  return out;
+}

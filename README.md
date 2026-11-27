@@ -1,7 +1,7 @@
-# BeFyn 6.0
+# BeFyn 6.5
 
 A personal fitness and wellness companion for Android (Capacitor + plain ES modules). Everything is stored on the phone.
-BeFyn 6.0 is the upgrade of "My Workouts" V5.0; it installs over V5.0 (same app id and signing key) and migrates its data.
+BeFyn 6.5 is the upgrade of "My Workouts" V5.0; it installs over V5.0 (same app id and signing key) and migrates its data.
 
 ## What is in this package
 | Path | What |
@@ -22,19 +22,27 @@ BeFyn 6.0 is the upgrade of "My Workouts" V5.0; it installs over V5.0 (same app 
 ## Commands
 ```
 npm install            # only needed to build the APK (Capacitor, SheetJS)
-npm test               # 44 unit tests (domain, data, migration, services); no dependencies
-node tools/check.mjs   # colour-contrast check for light and dark themes + syntax check of every module
+npm test               # 56 unit and integration tests (domain, data, migration, services, reminders, security scanner)
+node tools/check.mjs   # colour-contrast (light and dark), syntax of every module, import graph
+node tools/security-scan.mjs   # static security scan (secrets, APIs, CSP, Android settings, dependencies, CI)
+bash tests/ci/dry-run.sh       # the build scripts against stub Gradle: failures not masked, fallback, APK verification
 node tools/serve.mjs   # serve www/ on http://localhost:8099 (open /?debug=1 for the test handle)
-sh tools/e2e.sh        # 8 browser flows in headless Chromium (needs Playwright installed)
+sh tools/e2e.sh        # 16 browser flows in headless Chromium (needs Playwright installed)
+sh tools/monkey.sh     # randomised UI test
 npm run seed           # regenerate www/assets/seed from legacy/plan_v4.js
 ```
 
 ## Build the APK
 See `docs/BUILD_INSTRUCTIONS.md`. In short: push this folder to your private GitHub repository; the workflow
-`.github/workflows/build-apk.yml` runs the checks and builds `app-debug.apk` (artifact `BeFyn_V6.0-APK`).
+`.github/workflows/build-apk.yml` runs the checks and builds the APK (artifact `BeFyn_V6.5-APK`, file `BeFyn_V6.5.apk`).
 
 ## Documents
-- `docs/CHANGELOG_V5_TO_V6.md` what changed
+- `BeFyn_V6.5_Release_Notes.md` what changed, what is verified, recommendation
+- `docs/BUILD_REPORT.md` why no APK was produced and the permanent fix
+- `docs/UPGRADE_COMPATIBILITY_REPORT.md` V5.0 to V6.5 identity, signing and migration
+- `docs/security/` security assessment and vulnerability register
+- `docs/dev/TEST_EVIDENCE.md` what was actually run
+- `docs/CHANGELOG_V5_TO_V6.md` earlier V6.0 changes
 - `docs/RETAINED_IMPROVED_REPLACED.md` what happened to each V5.0 capability
 - `docs/ARCHITECTURE.md` modules, data model, schedule engine, migration
 - `docs/BUILD_INSTRUCTIONS.md` reproducible build and install
