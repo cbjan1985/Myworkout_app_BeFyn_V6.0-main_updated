@@ -64,9 +64,9 @@
    ],
    [
     "Programme-complete state shown and next programme offered",
-    "missing",
-    "P0",
-    "Completed instance is never loaded (only active/paused are), so the 'Programme complete' card is unreachable"
+    "done",
+    "",
+    "V6.5: Today and Train show it with Start again and Hide; E2E (finish 56 sessions, reload, restart)"
    ],
    [
     "Progression rules: load progression and deload rules in the template",
@@ -224,9 +224,9 @@
    ],
    [
     "Choose training days and rest days when creating",
-    "partial",
-    "P1",
-    "Days are auto-spread from 'sessions per week'; changeable per day afterwards, no explicit day picker"
+    "done",
+    "",
+    "V6.5: day chips when creating; unchosen days are rest days"
    ],
    [
     "Add exercises from the Exercise Master",
@@ -242,15 +242,15 @@
    ],
    [
     "Edit warm-up, stretching, breathing and flow sections",
-    "missing",
-    "P0",
-    "Builder edits the main workout only"
+    "done",
+    "",
+    "V6.5: sections editor, E2E"
    ],
    [
     "Create superset, tri-set and drop-set blocks",
-    "missing",
-    "P0",
-    "Only imported/seed programmes contain them; Excel import can"
+    "done",
+    "",
+    "V6.5: E2E"
    ],
    [
     "Progression settings",
@@ -266,9 +266,9 @@
    ],
    [
     "Preview weekly structure before saving",
-    "partial",
-    "P1",
-    "List of days; no week preview"
+    "done",
+    "",
+    "V6.5: week-at-a-glance strip"
    ],
    [
     "Multi-step builder with visible progress",
@@ -296,9 +296,9 @@
    ],
    [
     "Duplicate a programme as a new, separate programme",
-    "missing",
-    "P1",
-    "Only 'new version of the same programme'"
+    "done",
+    "",
+    "V6.5: tested + UI"
    ],
    [
     "Excel export and import of programmes",
@@ -308,9 +308,9 @@
    ],
    [
     "Download a blank Excel weekly-schedule template",
-    "missing",
-    "P1",
-    "V5 had it"
+    "done",
+    "",
+    "V6.5: needs device for the file save"
    ]
   ]
  },
@@ -337,9 +337,9 @@
    ],
    [
     "Filter by difficulty",
-    "missing",
-    "P2",
-    ""
+    "done",
+    "",
+    "V6.5"
    ],
    [
     "Primary muscles, equipment, difficulty",
@@ -349,27 +349,27 @@
    ],
    [
     "Enter secondary muscles",
-    "missing",
-    "P1",
-    "Shown when present, not editable"
+    "done",
+    "",
+    "V6.5"
    ],
    [
     "Enter starting position",
-    "missing",
-    "P1",
-    "Shown when present, not editable"
+    "done",
+    "",
+    "V6.5"
    ],
    [
     "Enter variations",
-    "missing",
-    "P1",
-    "Shown when present, not editable"
+    "done",
+    "",
+    "V6.5"
    ],
    [
     "Progressions field (display and edit)",
-    "missing",
-    "P1",
-    "Stored, never shown or editable"
+    "done",
+    "",
+    "V6.5"
    ],
    [
     "Instructions, breathing, common mistakes, safety notes",
@@ -379,9 +379,9 @@
    ],
    [
     "Instruction text for warm-up, stretching and yoga exercises",
-    "missing",
-    "P0",
-    "288 programme items carry descriptions and 354 carry targets/breathing notes from V5; none are displayed. 83 exercises have no instruction text at all"
+    "partial",
+    "P2",
+    "V6.5: V5 text now carried into the catalogue (123 -> 71 exercises without text). The remaining 71 warm-up and yoga exercises have no text in the V5 programme data at all; they show a demo-video link and can be edited"
    ],
    [
     "Video links with preview",
@@ -391,9 +391,9 @@
    ],
    [
     "Attach a local image, GIF or video to an exercise",
-    "missing",
-    "P0",
-    "V5 could; storage helper exists, no UI"
+    "done",
+    "",
+    "V6.5: E2E; stored inside the app, SVG refused, 40 MB limit"
    ],
    [
     "Media folder sync",
@@ -510,9 +510,9 @@
    ],
    [
     "Finish the workout early",
-    "missing",
-    "P0",
-    "No way to end with exercises remaining except skipping each one"
+    "done",
+    "",
+    "V6.5: E2E (partial vs counted)"
    ],
    [
     "Substitute an exercise during a session",
@@ -534,9 +534,9 @@
    ],
    [
     "Workout timing settings take effect (break, transition preview, breath break, rep seconds, auto-rest)",
-    "missing",
-    "P0",
-    "Only 'rest between sets' is used; 3 controls on Preferences do nothing"
+    "done",
+    "",
+    "V6.5: rest, break, get-ready countdown, breathing break and auto-rest all take effect"
    ],
    [
     "Voice guidance on device",
@@ -557,27 +557,27 @@
   "s": [
    [
     "Browse past sessions",
-    "missing",
-    "P0",
-    "Only visible one day at a time on Calendar; V5 had a History tab"
+    "done",
+    "",
+    "V6.5: Progress > History, E2E"
    ],
    [
     "Session detail with every set",
-    "missing",
-    "P0",
-    ""
+    "done",
+    "",
+    "V6.5"
    ],
    [
     "Correct a log through the app (audited)",
-    "missing",
-    "P1",
-    "Service exists, no screen"
+    "done",
+    "",
+    "V6.5: E2E, reason required, original kept"
    ],
    [
     "Search or filter history",
-    "missing",
-    "P2",
-    ""
+    "done",
+    "",
+    "V6.5"
    ],
    [
     "CSV export of history",
@@ -604,9 +604,9 @@
    ],
    [
     "Week view",
-    "missing",
-    "P1",
-    "Spec: 'agenda/week view'; V5 had Weeks"
+    "done",
+    "",
+    "V6.5: E2E"
    ],
    [
     "Rest-day detail",
@@ -663,9 +663,9 @@
    ],
    [
     "Uses the profile (name, goal)",
-    "missing",
-    "P2",
-    "Collected in onboarding, never used or editable"
+    "done",
+    "",
+    "V6.5: greeting, editable in Preferences"
    ]
   ]
  },
@@ -716,27 +716,27 @@
    ],
    [
     "Trends for other measurements",
-    "missing",
-    "P1",
-    "Latest values only"
+    "done",
+    "",
+    "V6.5"
    ],
    [
     "Activity trends (steps, calories, exercise sessions from Health Connect)",
-    "missing",
-    "P0",
-    "Data is synced but never shown on Progress"
+    "done",
+    "",
+    "V6.5: E2E with simulated Health Connect data"
    ],
    [
     "Recovery and training-load trend over time",
-    "missing",
-    "P1",
-    "Single current value on Recovery"
+    "done",
+    "",
+    "V6.5: weekly load chart"
    ],
    [
     "Choose a time range for a chart",
-    "missing",
-    "P1",
-    "Fixed ranges"
+    "done",
+    "",
+    "V6.5"
    ]
   ]
  },
@@ -775,21 +775,21 @@
    ],
    [
     "Show exercise sessions",
-    "missing",
-    "P1",
-    "Synced, never displayed"
+    "done",
+    "",
+    "V6.5"
    ],
    [
     "Show body fat and height",
-    "missing",
-    "P2",
-    "Synced, never displayed"
+    "partial",
+    "P3",
+    "Body fat is shown; height is only used as stored data"
    ],
    [
     "Oxygen saturation (SpO2)",
-    "missing",
-    "P1",
-    "You asked for it in V3"
+    "unverified",
+    "",
+    "V6.5: JS and Kotlin written, permission declared; needs the APK and a device"
    ],
    [
     "Automatic background sync",
@@ -881,9 +881,9 @@
    ],
    [
     "Edit an entry",
-    "missing",
-    "P2",
-    "Delete only"
+    "done",
+    "",
+    "V6.5"
    ]
   ]
  },
@@ -910,27 +910,27 @@
    ],
    [
     "Upcoming-session reminder reflects the real schedule",
-    "missing",
-    "P0",
-    "Fires at a fixed time every week regardless of the schedule"
+    "done",
+    "",
+    "V6.5: unit-tested against the real schedule; delivery needs a device"
    ],
    [
     "Missed-session reminder only when a session was missed",
-    "missing",
-    "P0",
-    "Fires every week regardless"
+    "done",
+    "",
+    "V6.5: unit-tested against the real schedule; delivery needs a device"
    ],
    [
     "Milestone reminder tied to an actual milestone",
-    "missing",
-    "P1",
-    "Time-based only"
+    "done",
+    "",
+    "V6.5: unit-tested against the real schedule; delivery needs a device"
    ],
    [
     "Reminders re-planned after schedule changes",
-    "missing",
-    "P1",
-    ""
+    "done",
+    "",
+    "V6.5: unit-tested against the real schedule; delivery needs a device"
    ]
   ]
  },
@@ -981,9 +981,9 @@
    ],
    [
     "V5 'other apps' links shown",
-    "missing",
-    "P2",
-    "Migrated to preferences, no screen"
+    "done",
+    "",
+    "V6.5: Preferences > Other apps"
    ]
   ]
  },
@@ -1016,9 +1016,9 @@
    ],
    [
     "Backup reminder",
-    "missing",
-    "P2",
-    ""
+    "done",
+    "",
+    "V6.5: backup reminder type and a banner on More when a backup is over 14 days old"
    ]
   ]
  },
@@ -1039,9 +1039,9 @@
    ],
    [
     "Edit profile (name, goal)",
-    "missing",
-    "P2",
-    ""
+    "done",
+    "",
+    "V6.5"
    ],
    [
     "Units",
@@ -1051,9 +1051,9 @@
    ],
    [
     "Tagline 'Your life. Your fitness. Your pace.' shown",
-    "missing",
-    "P2",
-    "Appears nowhere"
+    "done",
+    "",
+    "V6.5: About and welcome"
    ]
   ]
  },
@@ -1127,15 +1127,15 @@
    ],
    [
     "Status is not shown by colour alone",
-    "partial",
-    "P1",
-    "Calendar dots rely on colour in the grid (names are in each day's label)"
+    "done",
+    "",
+    "V6.5: calendar markers differ by shape (filled, ring, diamond, dash)"
    ],
    [
     "Form errors tied to their fields",
-    "partial",
-    "P1",
-    "Sheet forms show a separate alert line, not linked with aria-describedby"
+    "done",
+    "",
+    "V6.5: the inline error is linked to the sheet's controls (aria-describedby, aria-invalid) and announced"
    ],
    [
     "Screen-reader pass on a device",
@@ -1203,9 +1203,9 @@
    ],
    [
     "Edit a saved workout",
-    "missing",
-    "P0",
-    "Create and delete only"
+    "done",
+    "",
+    "V6.5: E2E"
    ],
    [
     "Edit a single day's workout (V5 per-day override)",
@@ -1221,21 +1221,21 @@
    ],
    [
     "'Plan your next weeks' after the programme ends",
-    "missing",
-    "P1",
-    ""
+    "partial",
+    "P2",
+    "V6.5: Start again after completion; no bulk copy of weeks"
    ],
    [
     "Programme guide text from the PDF",
-    "missing",
-    "P1",
-    "Imported into the template, never shown"
+    "done",
+    "",
+    "V6.5: Train > programme details"
    ],
    [
     "Health trends and records per metric",
-    "partial",
-    "P1",
-    ""
+    "done",
+    "",
+    "V6.5: per-measurement trend on Progress > Body"
    ],
    [
     "Voice test, rest timer, breathing voice, per-side splitting, YouTube preview",
@@ -1275,14 +1275,14 @@
    [
     "Keep signing material out of the source",
     "partial",
-    "P1",
-    "V5's debug keystore is committed; moving signing to repository secrets is in progress"
+    "P2",
+    "V6.5: workflow prefers the repository secret BEFYN_V5_KEYSTORE_BASE64 and verifies the certificate fingerprint; the V5 debug keystore file is still in the repository until you move it"
    ],
    [
     "Dependency vulnerability review",
-    "missing",
-    "P1",
-    "Not possible offline"
+    "unverified",
+    "",
+    "V6.5: SheetJS upgraded past two known CVEs; CI runs an npm audit gate; OWASP Dependency-Check, MobSF, Semgrep and Gitleaks were not available offline"
    ],
    [
     "Capacitor and plugin version compatibility verified",
@@ -1295,6 +1295,36 @@
     "missing",
     "P0",
     "Not possible in this environment"
+   ],
+   [
+    "Password-protected backups (AES-256-GCM, PBKDF2 600,000)",
+    "done",
+    "",
+    "V6.5: tested + E2E"
+   ],
+   [
+    "Import hardening (size limits, prototype-pollution-safe parsing, row validation, spreadsheet formulas off)",
+    "done",
+    "",
+    "V6.5: tested"
+   ],
+   [
+    "Notification text is generic unless opted in",
+    "done",
+    "",
+    "V6.5: tested"
+   ],
+   [
+    "Non-debuggable APK, cleartext off, WebView debugging off, APK permission deny-list checked in CI",
+    "unverified",
+    "",
+    "V6.5: configured and dry-run tested; the real APK check runs in CI"
+   ],
+   [
+    "Automated static security scan with self-test and CI gate",
+    "done",
+    "",
+    "V6.5: tools/security-scan.mjs"
    ]
   ]
  },

@@ -192,3 +192,12 @@ test('flattenSession expands "each side" into Left then Right steps and superset
   assert.equal(steps[0].restAfterRound, 0); assert.equal(steps[1].restAfterRound, 45);
   assert.equal(steps[5].restAfterRound, 60); assert.ok(steps.every((s, i) => s.index === i));
 });
+
+test('resuming on the same day the programme was paused is possible even though no session moves', () => {
+  const { state, ctx } = mk('2026-11-02');
+  const paused = applyOk(state, ctx, { type: 'pause' });
+  const p = E.preview(paused.state, ctx, { type: 'resume' });
+  assert.equal(p.ok, true); assert.equal(p.valid, true); assert.equal(p.changes.length, 0);
+  const r = applyOk(paused.state, ctx, { type: 'resume' });
+  assert.equal(r.state.instance.status, 'active');
+});

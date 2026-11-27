@@ -96,3 +96,28 @@ test('spreadsheet import reports row-level problems instead of throwing', () => 
   assert.equal(r.draft, null); assert.ok(r.issues.length >= 2);
   assert.ok(templateFromRows([['Foo']]).issues[0].includes('Week'));
 });
+
+import { webcrypto } from 'node:crypto';
+import { encryptBackup, decryptBackup, isEncrypted } from '../www/src/data/backup-crypto.js';
+import { safeParse, validateBackup as vb } from '../www/src/data/backup.js';
+
+test('encrypted backup round-trips; wrong password and tampering both fail', async () => {
+  const text = JSON.stringify({ hello: 'health data', n: 1 });
+  const enc = await encryptBackup(text, 'correct horse battery', webcrypto.subtle);
+  assert.ok(isEncrypted(enc)); assert.ok(!JSON.stringify(enc).includes('health data'));
+  assert.equal(await decryptBackup(enc, 'correct horse battery', webcrypto.subtle), text);
+  await assert.rejects(decryptBackup(enc, 'wrong password', webcrypto.subtle), /wrong-password/);
+  const bad = { ...enc, data: enc.data.slice(0, -8) + 'AAAAAAAA' };
+  await assert.rejects(decryptBackup(bad, 'correct horse battery', webcrypto.subtle), /wrong-password/);
+  await assert.rejects(encryptBackup(text, 'short', webcrypto.subtle), /at least 8/);
+  const e2 = await encryptBackup(text, 'correct horse battery', webcrypto.subtle); assert.notEqual(e2.data, enc.data); assert.notEqual(e2.kdf.salt, enc.kdf.salt);
+});
+
+test('imported JSON cannot pollute prototypes and malformed rows are refused', () => {
+  const o = safeParse('{"a":1,"__proto__":{"polluted":true},"constructor":{"x":1},"nested":{"__proto__":{"p":1}}}');
+  assert.equal({}.polluted, undefined); assert.equal(o.a, 1); assert.equal(Object.keys(o).includes('__proto__'), false);
+  assert.equal(Object.keys(o.nested).length, 0);
+  assert.ok(vb({ format: 'befyn-backup', schema: 1, data: { logs: [null] } }).length);
+  assert.ok(vb({ format: 'befyn-backup', schema: 1, data: { logs: [{ id: { x: 1 } }] } }).length);
+  assert.ok(vb({ format: 'befyn-backup', schema: 1, data: { logs: 'nope' } }).length);
+});

@@ -44,4 +44,19 @@ for (const f of [...walk(path.join(root, 'www/src')), ...walk(path.join(root, 't
   try { execFileSync(process.execPath, ['--check', f], { stdio: 'pipe' }); } catch (e) { console.log('SYNTAX', path.relative(root, f), String(e.stderr).split('\n')[0]); syntax++; }
 }
 console.log(syntax ? `${syntax} syntax error(s)` : 'syntax OK');
-process.exit(bad || syntax ? 1 : 0);
+
+// import graph: every relative import must resolve to a file, and every named import must be exported by that file
+let graph = 0; const seen = new Set();
+const exportsOf = (src) => { const set = new Set(); for (const m of src.matchAll(/export\s+(?:async\s+)?(?:const|let|var|function\*?|class)\s+([A-Za-z0-9_$]+)/g)) set.add(m[1]); for (const m of src.matchAll(/export\s*\{([^}]*)\}/g)) m[1].split(',').forEach((x) => { const n = x.trim().split(/\s+as\s+/).pop(); if (n) set.add(n); }); if (/export\s+default/.test(src)) set.add('default'); return set; };
+const visit = (file) => {
+  if (seen.has(file)) return; seen.add(file); const src = fs.readFileSync(file, 'utf8');
+  for (const m of src.matchAll(/import\s+(?:([A-Za-z0-9_$*\s{},]+?)\s+from\s+)?['"](\.[^'"]+)['"]/g)) {
+    const target = path.resolve(path.dirname(file), m[2]);
+    if (!fs.existsSync(target)) { console.log(`IMPORT ${path.relative(root, file)}: cannot find ${m[2]}`); graph++; continue; }
+    if (m[1]) { const named = /\{([^}]*)\}/.exec(m[1]); if (named) { const ex = exportsOf(fs.readFileSync(target, 'utf8')); for (const n of named[1].split(',').map((x) => x.trim().split(/\s+as\s+/)[0]).filter(Boolean)) if (!ex.has(n)) { console.log(`IMPORT ${path.relative(root, file)}: "${n}" is not exported by ${m[2]}`); graph++; } } }
+    if (target.endsWith('.js')) visit(target);
+  }
+};
+visit(path.join(root, 'www/src/main.js'));
+console.log(graph ? `${graph} broken import(s)` : `import graph OK (${seen.size} modules reachable from main.js)`);
+process.exit(bad || syntax || graph ? 1 : 0);

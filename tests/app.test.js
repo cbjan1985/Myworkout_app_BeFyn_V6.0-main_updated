@@ -15,7 +15,7 @@ function fakePlatform() {
   return {
     saved,
     files: { saveText: async (n, t) => { saved.push({ n, t }); return { ok: true, where: 'test/' + n }; }, saveBase64: async () => ({ ok: true }), loadXlsx: async () => { throw new Error('no xlsx'); }, readArrayBuffer: async () => new ArrayBuffer(0) },
-    notifications: { validate: () => [], scheduleAll: async (r) => ({ ok: true, count: r.filter((x) => x.enabled).length }), requestPermission: async () => 'granted' },
+    notifications: { validate: () => [], scheduleAll: async (plan) => ({ ok: true, count: plan.repeating.length + plan.oneOff.length }), requestPermission: async () => 'granted' },
     health: { status: async () => ({ availability: 'unavailable', granted: [] }), requestAccess: async () => ({ ok: false }), sync: async () => ({ ok: false, reason: 'unavailable' }) },
     storage: { getItem: (k) => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, v), removeItem: (k) => store.delete(k) }, subtle: webcrypto.subtle,
   };
@@ -135,7 +135,7 @@ test('protein, measurements, reminders and insights work together', async () => 
   assert.equal((await app.addProtein({ item: 'x', proteinG: -3 })).ok, false);
   assert.ok((await app.addMeasurement({ type: 'weight', value: 72.5 })).ok); assert.equal((await app.addMeasurement({ type: 'weight', value: 'abc' })).ok, false);
   assert.equal(app.latestMeasurements().weight.value, 72.5);
-  const rem = await app.saveReminder({ kind: 'workout', time: '07:30', days: [1, 3, 5] }); assert.ok(rem.ok); assert.equal(rem.scheduling.count, 1);
+  const rem = await app.saveReminder({ kind: 'hydration', time: '07:30', days: [1, 3, 5] }); assert.ok(rem.ok); assert.equal(rem.scheduling.count, 3);
   assert.equal((await app.saveReminder({ time: '25:00' })).ok, false);
   const ins = app.insights(); assert.equal(ins.readiness.level, 'unknown'); assert.equal(ins.weekly.length, 8);
 });

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -e
+case "$*" in
+  "cap add android")
+    mkdir -p android; cp -r "$CI_SKELETON"/. android/; mkdir -p android/app/src/main/java android/app/src/main/assets
+    cat > android/gradlew <<'G'
+#!/usr/bin/env bash
+# stub Gradle: behaviour controlled by FAKE_* environment variables
+echo "> Task :app:assembleDebug (stub)"
+HEALTH=0; grep -q "kotlin-android" app/build.gradle && HEALTH=1
+if [ "${FAKE_ALL_BREAK:-0}" = 1 ] || { [ "${FAKE_HEALTH_BREAKS:-0}" = 1 ] && [ $HEALTH = 1 ]; }; then echo "FAILURE: Build failed with an exception."; echo "e: BeFynHealthPlugin.kt: Unresolved reference"; exit 1; fi
+[ "${FAKE_NO_APK:-0}" = 1 ] && { echo "BUILD SUCCESSFUL but nothing produced"; exit 0; }
+mkdir -p app/build/outputs/apk/debug; dd if=/dev/zero of=app/build/outputs/apk/debug/app-debug.apk bs=1024 count=1500 2>/dev/null; echo "BUILD SUCCESSFUL"
+G
+    chmod +x android/gradlew ;;
+  "cap sync android")
+    PUB=android/app/src/main/assets/public; mkdir -p "$PUB"; cp -r www/. "$PUB/"; cp capacitor.config.json android/app/src/main/assets/ ;;
+  *) echo "stub npx: unsupported: $*" >&2; exit 2 ;;
+esac

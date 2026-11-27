@@ -1,29 +1,29 @@
-# Build instructions
+# Build instructions (BeFyn V6.5)
 
 ## Requirements
-- A GitHub account and a private repository (the same way V3 to V5 were built).
-- Nothing to install on your computer for the GitHub build.
+A GitHub account and a private repository. Nothing to install on your computer for the GitHub build.
 
 ## Steps
-1. Create or open your private repository and upload the contents of this folder (keep the folder structure, including `.github/workflows/`, `signing/` and `legacy/`).
-2. Open **Actions** > **Build BeFyn APK** > **Run workflow** (it also runs on every push to `main`).
-3. Wait for the run to finish (typically 6 to 10 minutes). Download the artifact **BeFyn_V6.0-APK** and unzip it to get `app-debug.apk`.
-4. Copy the APK to the phone and install it over V5.0. Android keeps your data because the app id `com.myworkout.v3` and the signing key `signing/debug.keystore` are unchanged.
+1. Upload the contents of this folder to the repository root (keep `.github/workflows/`, `signing/`, `legacy/`). Delete any older files, including the stray `*.jss` files and `tests/app.test`.
+2. Recommended once: add the repository secret **`BEFYN_V5_KEYSTORE_BASE64`** (Settings > Secrets and variables > Actions). Its value is `base64 -w0 signing/debug.keystore`. Then delete `signing/debug.keystore` from the repository. Without the secret the workflow uses the committed file and prints a warning.
+3. Actions > **Build BeFyn APK** > Run workflow (also runs on every push to `main`/`master`).
+4. When it finishes, open the run: the summary shows the APK details (or the failing stage and key error lines). Download **`BeFyn_V6.5-APK`** (it contains `BeFyn_V6.5.apk`) and **`BeFyn_V6.5-build-logs`**.
+5. Copy the APK to the phone and install over V5.0 (do not uninstall V5.0 first).
 
-## What the workflow does
-1. `npm install`, then `npm test` and `node tools/check.mjs` (the build stops if the logic tests, contrast checks or syntax checks fail).
-2. Copies the SheetJS library next to the app, runs `npx cap add android`, sets version 6.0 (code 9).
-3. Copies `android-overrides/` (voice/folder plugin, Health Connect plugin, MainActivity), applies `patch_manifest.py` and `patch_gradle.py` (Kotlin, Health Connect client, minSdk 26, permissions, Health Connect rationale entries, cloud backup off), syncs the web app, copies the icons from `android-res/`, uses the fixed signing key, runs `./gradlew assembleDebug`.
-4. If that build fails, it uploads the build log (`BeFyn_V6.0-health-build-log`) and builds again **without** Health Connect so you still get a working APK. In that APK, More > Health shows "Health Connect is only available in the Android app" style messages. Send me the log and the native part can be fixed.
+## What can fail, and what it means
+| Message in the run | Meaning |
+|---|---|
+| "The keystore is not the V5.0 signing identity" | The key does not match `signing/V5_CERT_SHA256.txt`; BeFyn would not install over V5.0. Fix the secret or file. |
+| "The build with Health Connect FAILED" (warning) | The Kotlin/Health Connect build failed; a build without Health Connect follows. Send me `BeFyn_V6.5-build-logs`. The APK is then `BeFyn_V6.5_no-health.apk`. |
+| "No .apk file exists" | Gradle finished but produced nothing. See the log artifact. |
+| "NOT signed with the V5.0 identity" / "is debuggable" / "permission BeFyn must never have" | The final APK check failed; the APK is not published. |
+| npm audit high/critical | A production dependency has a serious advisory; the message names it. |
+
+## Scripts
+`tools/android-build.sh [--no-health]` (Capacitor project, patches, sync, Gradle), `tools/verify-apk.sh` (find, check, rename, summary), `patch_gradle.py`, `patch_manifest.py`. `bash tests/ci/dry-run.sh` tests them against stub Gradle.
 
 ## Run in a browser (development)
-```
-node tools/serve.mjs      # http://localhost:8099/
-```
-Browser mode uses real IndexedDB. Android-only features (native voice, Health Connect, notifications, media folder) show plain "not available" messages.
+`node tools/serve.mjs` then open `http://localhost:8099/?debug=1&splash=0`. Android-only features show plain "not available" messages. `sh tools/e2e.sh` and `sh tools/monkey.sh` run the browser tests (Playwright needed).
 
-## Changing the app icon
-`node tools/make-icons.mjs` regenerates `android-res/` from the mark defined in that file (needs Playwright).
-
-## Version and app id
-- App id `com.myworkout.v3` is kept on purpose, so V5.0 upgrades in place. Do not change it or the keystore unless you accept that Android will treat BeFyn as a different app and V5.0 data will not carry over.
+## Icons and name
+The V5.0 logo and launcher icons in `android-res/` and `www/assets/` are the originals and must not be regenerated. Only the name text was changed.

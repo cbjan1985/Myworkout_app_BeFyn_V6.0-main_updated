@@ -1,10 +1,10 @@
 # Known limitations and outstanding items (read this first)
 
-**Start with `docs/dev/GAP_AUDIT.md`.** It lists every required feature and sub-feature that is missing or only partly done (75 of 203 audited items, 14 of them core). This file covers environment limits and design decisions.
+**Start with `BeFyn_V6.5_Release_Notes.md` and `docs/dev/GAP_AUDIT.md`** (208 sub-features audited: 161 done, 14 built but device-only, 18 partial, 15 missing). This file covers environment limits and design decisions.
 
 ## Not verified in the development environment
 The environment had no network, Android SDK, Gradle or device. Therefore:
-- **No APK was built.** Source and reproducible build instructions are provided. The GitHub workflow has been checked as valid YAML only.
+- **No APK was built.** The corrected workflow and scripts were tested against stub Gradle (`tests/ci/dry-run.sh`) and the YAML is valid, but the first real run is yours.
 - **The Kotlin Health Connect plugin has never been compiled or run.** It uses `androidx.health.connect:connect-client:1.1.0-alpha07`. If the Gradle build fails, the workflow uploads the log and builds a working APK without Health Connect; send me the log and I will fix it. The JavaScript side of Health Connect (permission flow, sync, de-duplication, summaries) is tested against a simulated plugin.
 - Native voice, the folder picker, notifications and the Filesystem/Share plugins are not exercised here (the JS side is; the native calls are unchanged from V5.0 except notifications and sharing, which are new).
 - The web layer was run in headless desktop Chromium (real IndexedDB, real DOM): 44 unit tests and 8 browser flows pass. Android WebView is the same engine family but was not used. No screen-reader test on a device was done.
