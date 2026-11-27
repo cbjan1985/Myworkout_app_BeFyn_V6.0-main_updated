@@ -1,6 +1,6 @@
 # Known limitations and outstanding items (read this first)
 
-**Start with `BeFyn_V6.5_Release_Notes.md` and `docs/dev/GAP_AUDIT.md`** (208 sub-features audited: 161 done, 14 built but device-only, 18 partial, 15 missing). This file covers environment limits and design decisions.
+**Start with `FiT85_V6.5_Release_Notes.md` and `docs/dev/GAP_AUDIT.md`** (208 sub-features audited: 161 done, 14 built but device-only, 18 partial, 15 missing). This file covers environment limits and design decisions.
 
 ## Not verified in the development environment
 The environment had no network, Android SDK, Gradle or device. Therefore:

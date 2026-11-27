@@ -1,10 +1,10 @@
-# BeFyn V6.5 development status
+# FiT85 V6.5 development status
 
 Last updated: 2026-11-22 (release-candidate checkpoint)
 
 ## Release
-- Version: **BeFyn V6.5**, versionName 6.5, versionCode 10, application id `com.myworkout.v3` (unchanged), APK `BeFyn_V6.5.apk`, artifact `BeFyn_V6.5-APK`.
-- Logo, launcher icons and flash-screen image: the original V5.0 files, unchanged; flash screen 3.5 s; only the name text is BeFyn.
+- Version: **FiT85 V6.5**, versionName 6.5, versionCode 10, application id `com.myworkout.v3` (unchanged), APK `FiT85_V6.5.apk`, artifact `FiT85_V6.5-APK`.
+- Logo, launcher icons and flash-screen image: the original V5.0 files, unchanged; flash screen 3.5 s; only the name text is FiT85.
 - Recommendation: **Not Ready for Release** until the workflow builds and verifies the APK and the upgrade is tested on a phone. Then: Ready with Documented Limitations.
 
 ## Work completed (this session)

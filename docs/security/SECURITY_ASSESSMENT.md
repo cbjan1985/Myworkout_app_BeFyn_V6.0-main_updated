@@ -1,4 +1,4 @@
-# Security assessment: BeFyn V6.5
+# Security assessment: FiT85 V6.5
 
 ## Scope and method
 Application source (`www/src`, `index.html`, CSS), Android configuration (patch scripts, Capacitor config, native plugins), dependencies (`package.json`), the CI workflow and scripts, secrets in the repository, data handling (storage, backup, import/export, migration), and the Health Connect, notification and media integrations. I investigated each finding, fixed it where real, and added a test or scanner rule so it cannot quietly return.

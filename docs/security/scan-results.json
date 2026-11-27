@@ -2,7 +2,7 @@
  "tool": "tools/security-scan.mjs",
  "summary": {
   "scanned": {
-   "files": 141,
+   "files": 142,
    "appCodeFiles": 51
   },
   "total": 4,
@@ -21,7 +21,7 @@
    "cls": "accepted-risk",
    "area": "Secrets",
    "where": "signing/debug.keystore",
-   "what": "A signing keystore file is committed. It is the V5.0 debug identity (alias androiddebugkey, the Android default password) that lets BeFyn install over V5.0, so it protects nothing secret, but a signing file in source control is still poor practice.",
+   "what": "A signing keystore file is committed. It is the V5.0 debug identity (alias androiddebugkey, the Android default password) that lets FiT85 install over V5.0, so it protects nothing secret, but a signing file in source control is still poor practice.",
    "fix": "Store it as the repository secret BEFYN_V5_KEYSTORE_BASE64 (the workflow already prefers it) and delete the file. The workflow verifies the certificate fingerprint either way."
   },
   {
@@ -30,7 +30,7 @@
    "cls": "accepted-risk",
    "area": "Android",
    "where": "patch_manifest.py",
-   "what": "MANAGE_EXTERNAL_STORAGE (all files access) is declared for the optional exercise-media folder feature that V5.0 users rely on. Android only grants it if the person turns it on in system settings, and BeFyn asks only when that feature is used. Google Play would not accept it; BeFyn is sideloaded.",
+   "what": "MANAGE_EXTERNAL_STORAGE (all files access) is declared for the optional exercise-media folder feature that V5.0 users rely on. Android only grants it if the person turns it on in system settings, and FiT85 asks only when that feature is used. Google Play would not accept it; FiT85 is sideloaded.",
    "fix": "Attach media per exercise with the file picker (no permission needed, already available). The folder feature can then be removed in a future release."
   },
   {

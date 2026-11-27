@@ -13,10 +13,10 @@
 | Breathing guidance with voice | **Retained** | Uses the phone's text-to-speech via the existing plugin |
 | Excel weekly schedule template | **Retained** | Excel import and export of programmes |
 | Local workout history dashboard | **Improved** | Progress tab |
-| Protected health tracker (password vault) | **Replaced** | Body measurements in BeFyn; V5.0 encrypted records import with your own password; no default password |
+| Protected health tracker (password vault) | **Replaced** | Body measurements in FiT85; V5.0 encrypted records import with your own password; no default password |
 | Google Fit / Fastrack | **Replaced** | Health Connect (read-only) is the supported path on Android |
 | Black theme | **Replaced** | System/light/dark themes from the design system |
 | Auto backup to a fixed file | **Replaced** | Explicit backup/restore (and a safety snapshot before every restore) |
-| App icon (X mark) | **Replaced** | New BeFyn mark (replaceable via `tools/make-icons.mjs`) |
+| App icon (X mark) | **Replaced** | New FiT85 mark (replaceable via `tools/make-icons.mjs`) |
 | "Redo" in workouts | **Removed** | Back (undo last set) is provided; redo was rarely useful |
 | PDF user manual | Deferred | As agreed |

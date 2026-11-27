@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- BeFyn never needs unencrypted network traffic. The WebView content is served locally by Capacitor. -->
+<!-- FiT85 never needs unencrypted network traffic. The WebView content is served locally by Capacitor. -->
 <network-security-config>
     <base-config cleartextTrafficPermitted="false">
         <trust-anchors>

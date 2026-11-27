@@ -1,7 +1,7 @@
-# Changelog: V5.0 to BeFyn 6.0 (V6.0 + V6.1 + V6.2 delivered together)
+# Changelog: V5.0 to FiT85 6.0 (V6.0 + V6.1 + V6.2 delivered together)
 
 ## Product
-- **New name, identity and design system**: BeFyn, deep teal/mint/ivory palette, one icon family, complete light and dark themes, 56 colour pairs checked for contrast.
+- **New name, identity and design system**: FiT85, deep teal/mint/ivory palette, one icon family, complete light and dark themes, 56 colour pairs checked for contrast.
 - **New structure**: Today, Train, Calendar, Progress, More. Every journey has an empty, loading, error and permission state.
 
 ## The programme problem (the main V6.0 change)

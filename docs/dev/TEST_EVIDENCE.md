@@ -1,4 +1,4 @@
-# Test evidence: BeFyn V6.5 (executed in the development environment)
+# Test evidence: FiT85 V6.5 (executed in the development environment)
 
 | Suite | Command | Result |
 |---|---|---|

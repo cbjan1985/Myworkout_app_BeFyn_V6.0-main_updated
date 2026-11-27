@@ -36,9 +36,9 @@ V5.0 completes a programme session only if main-section sets were logged that da
 ## Platform adapters
 - Voice: existing native `GifFolder` plugin (`speak`, `stopSpeak`), browser speech, then tones.
 - Folder media: existing `GifFolder` plugin (`pickFolder`, `listGifs`, `requestAccess`).
-- Health Connect: `BeFynHealth` Kotlin plugin (`getStatus`, `requestPermissions`, `readRecords`, `openSettings`), read-only.
+- Health Connect: `FiT85Health` Kotlin plugin (`getStatus`, `requestPermissions`, `readRecords`, `openSettings`), read-only.
 - Reminders: `@capacitor/local-notifications` (weekly repeating, allowed while idle).
-- Files: `@capacitor/filesystem` (Documents/BeFyn) and `@capacitor/share`.
+- Files: `@capacitor/filesystem` (Documents/FiT85) and `@capacitor/share`.
 
 ## Routing and UI
 Hash routes (`#/today`, `#/train`, `#/calendar`, `#/progress`, `#/more/...`, full-screen `#/workout`). Sheets push a history entry so Android Back closes the top sheet first; navigation waits for a closing sheet to settle. Colour comes only from semantic tokens in `styles/tokens.css` (light and dark), checked by `tools/check.mjs`.
