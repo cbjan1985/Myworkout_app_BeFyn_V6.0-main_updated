@@ -2,7 +2,7 @@
  "tool": "tools/security-scan.mjs",
  "summary": {
   "scanned": {
-   "files": 142,
+   "files": 141,
    "appCodeFiles": 51
   },
   "total": 4,

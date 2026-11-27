@@ -43,7 +43,7 @@ for (const f of appCode.filter((x) => /\.js$/.test(x))) { const t = read(f); for
 /* ---------- 3. Content-Security-Policy ---------- */
 { const html = read(path.join(root, 'www/index.html')); const m = /Content-Security-Policy"\s+content="([^"]+)"/.exec(html);
   if (!m) add('SEC-CSP-MISSING', 'P1', 'WebView', 'www/index.html', 'No Content-Security-Policy.', 'Add a strict CSP meta tag.');
-  else { const csp = m[1]; const dir = (n) => (new RegExp(`${n}\\s+([^;]+)`).exec(csp) || [])[1] || '';
+  else { const csp = m[1]; const dir = (n) => (new RegExp(`${n}\s+([^;]+)`).exec(csp) || [])[1] || '';
     if (/unsafe-eval/.test(csp)) add('SEC-CSP-EVAL', 'P1', 'WebView', 'www/index.html', "CSP allows 'unsafe-eval'.", 'Remove it.');
     if (/script-src[^;]*(unsafe-inline|\*|https?:)/.test(csp)) add('SEC-CSP-SCRIPT', 'P1', 'WebView', 'www/index.html', 'script-src allows inline or remote scripts.', "Use 'self' only.");
     if (!/object-src\s+'none'/.test(csp)) add('SEC-CSP-OBJECT', 'P2', 'WebView', 'www/index.html', "object-src is not 'none'.", "Add object-src 'none'.");
@@ -83,7 +83,15 @@ for (const f of appCode.filter((x) => /\.js$/.test(x))) { const t = read(f); for
   if (/echo\s+\$\{\{\s*secrets\./.test(wf)) add('CI-ECHO-SECRET', 'P0', 'CI', 'build-apk.yml', 'A secret is echoed to the log.', 'Never print secrets.');
   for (const m of wf.matchAll(/uses:\s*([^\s@]+)@([^\s]+)/g)) if (!/^(actions)\//.test(m[1])) add('CI-THIRD-PARTY-ACTION', 'P2', 'CI', 'build-apk.yml', `Third-party action ${m[1]}@${m[2]}`, 'Pin it to a commit SHA.');
   const wfCode = wf.split('\n').filter((l) => !/^\s*#/.test(l)).map((l) => l.replace(/\s+#.*$/, '')).join('\n');
-  if (!/shell:\s*bash|set -[a-z]*o pipefail/.test(wfCode)) add('CI-PIPEFAIL', 'P1', 'CI', 'build-apk.yml', 'The shell does not fail on pipe errors, so a failing build piped to tee looks like success.', 'Use shell: bash (bash -eo pipefail).');
+  // GitHub Actions' default `bash` shell is only `bash -e` (no pipefail).
+  // Explicit `shell: bash` enables `bash --noprofile --norc -e -o pipefail`.
+  // Accept either a workflow/job-level defaults.run.shell or a step-level shell,
+  // but do not treat comments or unrelated script text as proof.
+  const hasPipefailShell =
+    /^ {4}shell:\s*bash\s*$/m.test(wfCode) ||
+    /^ {6,}shell:\s*bash\s*$/m.test(wfCode) ||
+    /^ {0,6}set -euo pipefail\s*$/m.test(wfCode);
+  if (!hasPipefailShell) add('CI-PIPEFAIL', 'P1', 'CI', 'build-apk.yml', 'No explicit pipefail protection is configured for GitHub Actions run steps; default bash does not enable pipefail.', 'Set defaults.run.shell: bash or add `set -euo pipefail` to every run script that uses pipelines.');
   if (!/if-no-files-found:\s*error/.test(wf)) add('CI-UPLOAD', 'P1', 'CI', 'build-apk.yml', 'APK upload only warns when no file exists.', 'Set if-no-files-found: error.'); }
 
 /* ---------- 7. data protection rules in code ---------- */
