@@ -49,6 +49,33 @@ end
 
 say "5. Icons, resources and signing key"
 cp -r android-res/. android/app/src/main/res/
+# Capacitor's generated launcher background may also declare the legacy splash colour.
+# Keep the canonical legacy colour in befyn_colors.xml and FiT85's dedicated colour
+# in fit85_colors.xml; remove only the duplicate legacy entry from launcher resources.
+python3 - <<'PYRES'
+from pathlib import Path
+import re
+values = Path("android/app/src/main/res/values")
+launcher = values / "ic_launcher_background.xml"
+if launcher.exists():
+    text = launcher.read_text(encoding="utf-8")
+    text, count = re.subn(r"\s*<color\s+name=[\"']befyn_splash[\"'][^>]*>.*?</color>", "", text, flags=re.S)
+    if count:
+        launcher.write_text(text, encoding="utf-8")
+# Fail early if any Android values resource name is declared more than once.
+import xml.etree.ElementTree as ET
+seen = {}
+for file in values.glob("*.xml"):
+    root = ET.parse(file).getroot()
+    for node in root.iter():
+        name = node.attrib.get("name")
+        if name:
+            key = (node.tag, name)
+            if key in seen:
+                raise SystemExit(f"Duplicate Android resource {key}: {seen[key]} and {file}")
+            seen[key] = file
+print("Android values resources: no duplicate names")
+PYRES
 need signing/debug.keystore "the fixed signing key that lets FiT85 install over V5.0"
 mkdir -p ~/.android && cp signing/debug.keystore ~/.android/debug.keystore
 echo "Signing certificate fingerprint (must be the same for every build that should upgrade in place):"

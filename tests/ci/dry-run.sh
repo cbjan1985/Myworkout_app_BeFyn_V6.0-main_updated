@@ -25,7 +25,7 @@ check "MainActivity registers both plugins" "grep -q 'FiT85HealthPlugin.class' a
 check "manifest: cleartext off, network security config, health permissions incl. SpO2, backup off" "grep -q 'usesCleartextTraffic=\"false\"' android/app/src/main/AndroidManifest.xml && grep -q 'network_security_config' android/app/src/main/AndroidManifest.xml && grep -q 'health.READ_OXYGEN_SATURATION' android/app/src/main/AndroidManifest.xml && grep -q 'health.READ_STEPS' android/app/src/main/AndroidManifest.xml && grep -q 'allowBackup=\"false\"' android/app/src/main/AndroidManifest.xml"
 check "manifest: no debuggable flag" "! grep -q 'android:debuggable' android/app/src/main/AndroidManifest.xml"
 check "web app + xlsx synced into Android assets" "[ -f android/app/src/main/assets/public/index.html ] && [ -f android/app/src/main/assets/public/xlsx.full.min.js ]"
-check "launch screen colour patched" "grep -q '@color/befyn_splash' android/app/src/main/res/values/styles.xml"
+check "launch screen colour patched" "grep -q '@color/fit85_splash' android/app/src/main/res/values/styles.xml"
 check "icons copied" "[ -f android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png ]"
 bash tools/verify-apk.sh >v.txt 2>&1; RC=$?
 check "verify finds the real APK and names it FiT85_V6.5.apk" "[ $RC = 0 ] && [ -f dist/FiT85_V6.5.apk ]"

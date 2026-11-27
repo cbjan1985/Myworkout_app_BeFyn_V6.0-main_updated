@@ -24,7 +24,7 @@ for (const [d, [legacy, adaptive]] of Object.entries(dens)) {
 await shot(512, 'square', path.join(root, 'docs/brand/befyn-icon-512.png'));
 await b.close();
 const w = (f, t) => { fs.mkdirSync(path.dirname(path.join(root, f)), { recursive: true }); fs.writeFileSync(path.join(root, f), t); };
-w('android-res/values/ic_launcher_background.xml', `<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="ic_launcher_background">${TEAL}</color>\n    <color name="befyn_splash">${IVORY}</color>\n</resources>\n`);
+w('android-res/values/ic_launcher_background.xml', `<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="ic_launcher_background">${TEAL}</color>\n</resources>\n`);
 const adaptive = '<?xml version="1.0" encoding="utf-8"?>\n<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">\n    <background android:drawable="@color/ic_launcher_background"/>\n    <foreground android:drawable="@mipmap/ic_launcher_foreground"/>\n</adaptive-icon>\n';
 w('android-res/mipmap-anydpi-v26/ic_launcher.xml', adaptive); w('android-res/mipmap-anydpi-v26/ic_launcher_round.xml', adaptive);
 w('android-res/drawable/ic_stat_fit85.xml', `<?xml version="1.0" encoding="utf-8"?>\n<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">\n    <path android:strokeColor="#FFFFFF" android:strokeWidth="2.2" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M8 5V19M8 5H13A3.2 3.2 0 0 1 13 11.4H8M8 11.4H14A3.2 3.2 0 0 1 14 19H8"/>\n</vector>\n`);
